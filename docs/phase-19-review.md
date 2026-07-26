@@ -1,7 +1,7 @@
 # Phase 19 review — documentation and release candidate
 
-**Version:** `1.0.0-rc.1`  
-**Date:** 2026-07-26  
+**Version:** `1.0.0-rc.2`
+**Date:** 2026-07-26
 **Status:** completed as a code-level release candidate
 
 ## Scope completed
@@ -53,7 +53,7 @@ clean Alembic upgrade
 → real Uvicorn health request
 ```
 
-The final rehearsal returned `status: passed`, version `1.0.0-rc.1`, and passed
+The final rehearsal returned `status: passed`, version `1.0.0-rc.2`, and passed
 all migration, administrator, backup, restore, reconciliation and health steps.
 The temporary database, storage and backup were removed after execution.
 
@@ -123,6 +123,6 @@ change the real domain and must not be described as production-launched.
 
 ## Result
 
-Software Hub is prepared as **`1.0.0-rc.1`**. The code-level release candidate
+Software Hub is prepared as **`1.0.0-rc.2`**. The code-level release candidate
 is ready to be tagged and subjected to all blocking GitHub Actions gates. A real
 production deployment and acceptance record remain Phase 20.

@@ -1,6 +1,6 @@
 # Software Hub data model
 
-**Phase:** 4  
+**Phase:** 4
 **Migration head:** `0002_phase4_domain_schema`
 
 ## Overview

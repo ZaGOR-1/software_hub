@@ -52,9 +52,7 @@ environment variables must change together.
 
 | Service | Mount | Mode |
 |---|---|---|
-| app | `/srv/software-hub/database` | read/write |
-| app | `/srv/software-hub/storage` | read/write |
-| app | `/srv/software-hub/backups` | read/write |
+| app | `${SOFTWARE_HUB_DATA_ROOT}/application` → `/srv/software-hub` | read/write |
 | nginx | `/srv/software-hub/storage/software` | read-only |
 | nginx | `/var/www/certbot` | read-only |
 | nginx | `/etc/letsencrypt` (production) | read-only |
@@ -63,6 +61,11 @@ environment variables must change together.
 
 Application and Nginx root filesystems are read-only. Their only ephemeral write
 location is a size-bounded, `noexec,nosuid,nodev` `/tmp` tmpfs.
+
+The application uses one persistent mount so database and storage restore staging
+paths remain on one filesystem and can be atomically renamed. Certificates and
+Certbot state stay outside `${SOFTWARE_HUB_DATA_ROOT}/application`, so the app
+cannot read TLS private keys.
 
 ## Nginx ownership of HTTP concerns
 

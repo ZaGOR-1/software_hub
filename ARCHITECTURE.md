@@ -1,7 +1,7 @@
 # Software Hub architecture
 
-**Release candidate:** `1.0.0-rc.1`  
-**Architecture style:** modular monolith  
+**Release candidate:** `1.0.0-rc.1`
+**Architecture style:** modular monolith
 **Primary domain:** `https://software.hotzagor.tech`
 
 This document describes the architecture that is actually implemented in the

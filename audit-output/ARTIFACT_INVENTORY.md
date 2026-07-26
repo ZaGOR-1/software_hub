@@ -1,7 +1,7 @@
 # Artifact inventory — Software Hub release audit
 
-Дата: 2026-07-26  
-Audited source root: `D:\work\software_hub`  
+Дата: 2026-07-26
+Audited source root: `D:\work\software_hub`
 Audit output root: `D:\work\software_hub\audit-output`
 
 ## 1. Audited snapshot baseline

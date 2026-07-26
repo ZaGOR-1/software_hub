@@ -47,6 +47,7 @@
     <div><p class="eyebrow">Рекомендоване</p><h2 id="featured-title">Вибрані програми</h2></div>
   </div>
   <div class="software-grid">
+    {% set card_id_prefix = "featured" %}
     {% for card in view.featured %}{% include "components/public_software_card.html" %}{% endfor %}
   </div>
 </section>
@@ -59,6 +60,7 @@
   </div>
   {% if view.latest %}
   <div class="software-grid">
+    {% set card_id_prefix = "latest" %}
     {% for card in view.latest %}{% include "components/public_software_card.html" %}{% endfor %}
   </div>
   {% else %}
@@ -73,6 +75,7 @@
     <a href="/software?sort=popularity">Повний рейтинг →</a>
   </div>
   <div class="software-grid">
+    {% set card_id_prefix = "popular" %}
     {% for card in view.popular %}{% include "components/public_software_card.html" %}{% endfor %}
   </div>
 </section>

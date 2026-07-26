@@ -32,6 +32,16 @@ server {
         include /etc/software-hub/nginx/snippets/security_headers.conf;
     }
 
+    location = /admin {
+        client_max_body_size 1m;
+        include ${SOFTWARE_HUB_ADMIN_ACCESS_FILE};
+        limit_req zone=general_requests burst=30 nodelay;
+        include /etc/software-hub/nginx/snippets/proxy_headers.conf;
+        include /etc/software-hub/nginx/snippets/proxy_timeouts_default.conf;
+        include /etc/software-hub/nginx/snippets/security_headers.conf;
+        proxy_pass $software_hub_app;
+    }
+
     location = /admin/login {
         client_max_body_size 64k;
         include ${SOFTWARE_HUB_ADMIN_ACCESS_FILE};

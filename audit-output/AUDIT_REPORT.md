@@ -1,16 +1,16 @@
 # Незалежний release-аудит Software Hub 1.0.0-rc.1
 
-Вердикт: **NO-GO (оригінальний аудит; повний re-audit очікується)**  
-Release readiness score: **47/100 (оригінальний, не перераховувався)**  
-P0: **0**  
-P1: **7 historical / 0 open after remediation**  
-P2: **2 historical / 0 open after remediation**  
-P3: **1 historical / 0 open after remediation**  
-Checks PASS: **10**  
-Checks FAIL: **3**  
+Вердикт: **NO-GO (оригінальний аудит; повний re-audit очікується)**
+Release readiness score: **47/100 (оригінальний, не перераховувався)**
+P0: **0**
+P1: **7 historical / 0 open after remediation**
+P2: **2 historical / 0 open after remediation**
+P3: **1 historical / 0 open after remediation**
+Checks PASS: **10**
+Checks FAIL: **3**
 Checks BLOCKED: **8**
 
-Дата: 2026-07-26  
+Дата: 2026-07-26
 Режим: початковий read-only audit + focused P1/P2/P3 remediation passes.
 
 ## Remediation update — 2026-07-26
@@ -106,214 +106,214 @@ attestation run ще не виконані, тому focused remediation не є
 
 ### SH-AUDIT-001
 
-ID: SH-AUDIT-001  
-Severity: P1  
-Area: dependencies/reproducibility  
-Title: Чисте locked-встановлення на цільовому Python 3.14 не збирається  
-Status: resolved — clean Python 3.14 locked sync/import PASS  
+ID: SH-AUDIT-001
+Severity: P1
+Area: dependencies/reproducibility
+Title: Чисте locked-встановлення на цільовому Python 3.14 не збирається
+Status: resolved — clean Python 3.14 locked sync/import PASS
 Release blocker: yes
 
-Requirement: `uv sync --all-groups --locked` має проходити на заявленому `>=3.14,<3.15`.  
-Evidence: CPython 3.14.3, uv 0.10.0: build `pydantic-core==2.33.1` падає, бо PyO3 0.24.0 підтримує максимум Python 3.13; ABI-forward retry падає на `jiter==0.9.0`.  
-Affected files: `pyproject.toml:6`, `uv.lock` packages `pydantic-core`/`jiter`, `Dockerfile:1-25`.  
-Reproduction steps: `uv python install 3.14`; `uv lock --check`; `uv sync --all-groups --locked`.  
-Observed result: exit 1 до створення runnable environment.  
-Expected result: frozen install exit 0 на новому runner.  
-Security or operational impact: Неможливо відтворити app image, CI або реліз із lock.  
-Exploitability: Operational; гарантовано відтворюється на clean target.  
-Recommendation: Оновити сумісний Pydantic dependency set і lock.  
+Requirement: `uv sync --all-groups --locked` має проходити на заявленому `>=3.14,<3.15`.
+Evidence: CPython 3.14.3, uv 0.10.0: build `pydantic-core==2.33.1` падає, бо PyO3 0.24.0 підтримує максимум Python 3.13; ABI-forward retry падає на `jiter==0.9.0`.
+Affected files: `pyproject.toml:6`, `uv.lock` packages `pydantic-core`/`jiter`, `Dockerfile:1-25`.
+Reproduction steps: `uv python install 3.14`; `uv lock --check`; `uv sync --all-groups --locked`.
+Observed result: exit 1 до створення runnable environment.
+Expected result: frozen install exit 0 на новому runner.
+Security or operational impact: Неможливо відтворити app image, CI або реліз із lock.
+Exploitability: Operational; гарантовано відтворюється на clean target.
+Recommendation: Оновити сумісний Pydantic dependency set і lock.
 Verification after fix: clean sync, import smoke і no-cache Docker build на Linux.
 
 ### SH-AUDIT-002
 
-ID: SH-AUDIT-002  
-Severity: P1  
-Area: code quality/CI  
-Title: Frozen Ruff gate не може стартувати, а baseline не clean  
-Status: resolved — locked Ruff format/lint PASS  
+ID: SH-AUDIT-002
+Severity: P1
+Area: code quality/CI
+Title: Frozen Ruff gate не може стартувати, а baseline не clean
+Status: resolved — locked Ruff format/lint PASS
 Release blocker: yes
 
-Requirement: Ruff format/lint critical gate має бути executable і green.  
-Evidence: Ruff 0.11.7 exit 2: unknown `py314`; Ruff 0.15.22 exit 1: 687 errors, 46 files would reformat.  
-Affected files: `pyproject.toml:29,35-76`, `uv.lock:556-577`, 46 Python files.  
-Reproduction steps: `uvx --from ruff==0.11.7 ruff check .`; повтор із Ruff 0.15.22.  
-Observed result: frozen gate не парсить config; supported tool знаходить великий debt.  
-Expected result: обидва project Ruff gates exit 0.  
-Security or operational impact: Critical CI gate не дає жодного reliable release signal.  
-Exploitability: Не security exploit; детермінований release process failure.  
-Recommendation: Оновити/pin Ruff з py314 support і очистити baseline.  
+Requirement: Ruff format/lint critical gate має бути executable і green.
+Evidence: Ruff 0.11.7 exit 2: unknown `py314`; Ruff 0.15.22 exit 1: 687 errors, 46 files would reformat.
+Affected files: `pyproject.toml:29,35-76`, `uv.lock:556-577`, 46 Python files.
+Reproduction steps: `uvx --from ruff==0.11.7 ruff check .`; повтор із Ruff 0.15.22.
+Observed result: frozen gate не парсить config; supported tool знаходить великий debt.
+Expected result: обидва project Ruff gates exit 0.
+Security or operational impact: Critical CI gate не дає жодного reliable release signal.
+Exploitability: Не security exploit; детермінований release process failure.
+Recommendation: Оновити/pin Ruff з py314 support і очистити baseline.
 Verification after fix: frozen `ruff format --check` та `ruff check` exit 0.
 
 ### SH-AUDIT-003
 
-ID: SH-AUDIT-003  
-Severity: P1  
-Area: tests/CI  
-Title: Standard dev graph не містить Playwright для безумовних imports  
-Status: resolved — Playwright locked; mypy and pytest standard graph PASS  
+ID: SH-AUDIT-003
+Severity: P1
+Area: tests/CI
+Title: Standard dev graph не містить Playwright для безумовних imports
+Status: resolved — Playwright locked; mypy and pytest standard graph PASS
 Release blocker: yes
 
-Requirement: documented `uv sync --all-groups --locked` має бути достатнім для стандартних mypy/pytest.  
-Evidence: clean fallback all-groups environment: pytest collection `ModuleNotFoundError: playwright`; mypy missing `playwright.sync_api` у двох files.  
-Affected files: `pyproject.toml:20-31`, `tests/e2e/conftest.py:20`, `tests/e2e/accessibility.py:9`, `.github/workflows/ci.yml:55-59`.  
-Reproduction steps: встановити exact all-groups export без manual Playwright; виконати `pytest` і `mypy`.  
-Observed result: collection/type-check exit non-zero.  
-Expected result: standard quality job повністю визначений lock graph.  
-Security or operational impact: Main CI не може дійти до test execution.  
-Exploitability: Operational, детерміновано на clean environment.  
-Recommendation: Окрема pinned e2e group або коректне exclusion/lazy import.  
+Requirement: documented `uv sync --all-groups --locked` має бути достатнім для стандартних mypy/pytest.
+Evidence: clean fallback all-groups environment: pytest collection `ModuleNotFoundError: playwright`; mypy missing `playwright.sync_api` у двох files.
+Affected files: `pyproject.toml:20-31`, `tests/e2e/conftest.py:20`, `tests/e2e/accessibility.py:9`, `.github/workflows/ci.yml:55-59`.
+Reproduction steps: встановити exact all-groups export без manual Playwright; виконати `pytest` і `mypy`.
+Observed result: collection/type-check exit non-zero.
+Expected result: standard quality job повністю визначений lock graph.
+Security or operational impact: Main CI не може дійти до test execution.
+Exploitability: Operational, детерміновано на clean environment.
+Recommendation: Окрема pinned e2e group або коректне exclusion/lazy import.
 Verification after fix: clean standard pytest/mypy без ad-hoc dependency install.
 
 ### SH-AUDIT-004
 
-ID: SH-AUDIT-004  
-Severity: P1  
-Area: tests/CI  
-Title: Infrastructure-тест Phase 18 детерміновано застарів  
-Status: resolved — UTF-8/current-flow infrastructure gate PASS  
+ID: SH-AUDIT-004
+Severity: P1
+Area: tests/CI
+Title: Infrastructure-тест Phase 18 детерміновано застарів
+Status: resolved — UTF-8/current-flow infrastructure gate PASS
 Release blocker: yes
 
-Requirement: Infrastructure quality gates мають перевіряти актуальну E2E поведінку і проходити.  
-Evidence: `test_e2e_suite_contains_critical_flow_and_accessibility_matrix` очікує фразу `Створити категорію`, відсутню у current `test_full_flow.py`; 21 infrastructure tests PASS, цей test FAIL.  
-Affected files: `tests/infrastructure/test_quality_gates_phase18.py:72-94`, `tests/e2e/test_full_flow.py`.  
-Reproduction steps: `pytest -o addopts='' tests/infrastructure -q`.  
-Observed result: assertion failure до browser execution.  
-Expected result: stable behavioral/structural gate exit 0.  
-Security or operational impact: Після інших fixes CI все одно лишається red.  
-Exploitability: Operational; platform-independent.  
-Recommendation: Замінити phrase matching на structural/behavioral assertion.  
+Requirement: Infrastructure quality gates мають перевіряти актуальну E2E поведінку і проходити.
+Evidence: `test_e2e_suite_contains_critical_flow_and_accessibility_matrix` очікує фразу `Створити категорію`, відсутню у current `test_full_flow.py`; 21 infrastructure tests PASS, цей test FAIL.
+Affected files: `tests/infrastructure/test_quality_gates_phase18.py:72-94`, `tests/e2e/test_full_flow.py`.
+Reproduction steps: `pytest -o addopts='' tests/infrastructure -q`.
+Observed result: assertion failure до browser execution.
+Expected result: stable behavioral/structural gate exit 0.
+Security or operational impact: Після інших fixes CI все одно лишається red.
+Exploitability: Operational; platform-independent.
+Recommendation: Замінити phrase matching на structural/behavioral assertion.
 Verification after fix: infrastructure suite exit 0 на Ubuntu.
 
 ### SH-AUDIT-005
 
-ID: SH-AUDIT-005  
-Severity: P1  
-Area: security/dependencies  
-Title: Starlette 1.1.0 має застосовну High DoS-вразливість  
-Status: resolved — Starlette 1.3.1, bounded login parser and field-flood regression PASS  
+ID: SH-AUDIT-005
+Severity: P1
+Area: security/dependencies
+Title: Starlette 1.1.0 має застосовну High DoS-вразливість
+Status: resolved — Starlette 1.3.1, bounded login parser and field-flood regression PASS
 Release blocker: yes
 
-Requirement: Runtime dependencies не повинні мати немітигованих High vulnerabilities.  
-Evidence: frozen export містить Starlette 1.1.0; pip-audit знаходить GHSA-82w8-qh3p-5jfq/CVE-2026-54283, CVSS 7.5, fixed 1.3.1. Код покладається на `request.form(max_fields=...)` у `app/routers/auth/dependencies.py:77-81`; Nginx global limit — 2g, Uvicorn workers — 1.  
-Affected files: `uv.lock:588-596`, `app/routers/auth/dependencies.py:68-87`, `nginx/templates/production.conf.template:28`, `Dockerfile:67`.  
-Reproduction steps: `pip-audit -r <frozen-runtime-requirements>`; перевірити advisory та code path.  
-Observed result: attacker-controlled urlencoded body може обійти intended field limits і блокувати event loop/пам’ять.  
-Expected result: patched parser або доведена compensating control.  
-Security or operational impact: Unauthenticated availability loss.  
-Exploitability: Network-reachable login/admin form endpoints; великий proxy body limit посилює ризик.  
-Recommendation: Starlette >=1.3.1 і small per-route form body limits.  
+Requirement: Runtime dependencies не повинні мати немітигованих High vulnerabilities.
+Evidence: frozen export містить Starlette 1.1.0; pip-audit знаходить GHSA-82w8-qh3p-5jfq/CVE-2026-54283, CVSS 7.5, fixed 1.3.1. Код покладається на `request.form(max_fields=...)` у `app/routers/auth/dependencies.py:77-81`; Nginx global limit — 2g, Uvicorn workers — 1.
+Affected files: `uv.lock:588-596`, `app/routers/auth/dependencies.py:68-87`, `nginx/templates/production.conf.template:28`, `Dockerfile:67`.
+Reproduction steps: `pip-audit -r <frozen-runtime-requirements>`; перевірити advisory та code path.
+Observed result: attacker-controlled urlencoded body може обійти intended field limits і блокувати event loop/пам’ять.
+Expected result: patched parser або доведена compensating control.
+Security or operational impact: Unauthenticated availability loss.
+Exploitability: Network-reachable login/admin form endpoints; великий proxy body limit посилює ризик.
+Recommendation: Starlette >=1.3.1 і small per-route form body limits.
 Verification after fix: clean audit плюс regression/load test.
 
 ### SH-AUDIT-006
 
-ID: SH-AUDIT-006  
-Severity: P1  
-Area: supply chain/CI  
-Title: Dependency audit дає false green, бо перевіряє tool environment  
-Status: resolved — CI/release verifier audit frozen runtime requirements  
+ID: SH-AUDIT-006
+Severity: P1
+Area: supply chain/CI
+Title: Dependency audit дає false green, бо перевіряє tool environment
+Status: resolved — CI/release verifier audit frozen runtime requirements
 Release blocker: yes
 
-Requirement: CI audit має перевіряти саме frozen runtime dependency set.  
-Evidence: exact CI command без `-r` дає 0 vulnerabilities; audit exported runtime requirements знаходить 7 advisory records у 4 packages, включно з High Starlette.  
-Affected files: `.github/workflows/ci.yml:61-65`.  
-Reproduction steps: порівняти `uvx --from pip-audit==2.10.1 pip-audit` та `... pip-audit -r <export>`.  
-Observed result: green CI signal не відповідає deployable environment.  
-Expected result: gate fails на відомій runtime vulnerability.  
-Security or operational impact: Вразливі dependencies можуть бути схвалені до release.  
-Exploitability: Supply-chain control failure.  
-Recommendation: Audit frozen export/lock і зберігати report artifact.  
+Requirement: CI audit має перевіряти саме frozen runtime dependency set.
+Evidence: exact CI command без `-r` дає 0 vulnerabilities; audit exported runtime requirements знаходить 7 advisory records у 4 packages, включно з High Starlette.
+Affected files: `.github/workflows/ci.yml:61-65`.
+Reproduction steps: порівняти `uvx --from pip-audit==2.10.1 pip-audit` та `... pip-audit -r <export>`.
+Observed result: green CI signal не відповідає deployable environment.
+Expected result: gate fails на відомій runtime vulnerability.
+Security or operational impact: Вразливі dependencies можуть бути схвалені до release.
+Exploitability: Supply-chain control failure.
+Recommendation: Audit frozen export/lock і зберігати report artifact.
 Verification after fix: negative-control vulnerable lock робить job red.
 
 ### SH-AUDIT-007
 
-ID: SH-AUDIT-007  
-Severity: P1  
-Area: containers/CI  
-Title: Container workflow запускає відсутній healthcheck path  
-Status: resolved — installed container healthcheck path is used  
+ID: SH-AUDIT-007
+Severity: P1
+Area: containers/CI
+Title: Container workflow запускає відсутній healthcheck path
+Status: resolved — installed container healthcheck path is used
 Release blocker: yes
 
-Requirement: Container runtime job має виконуватися на actual image filesystem.  
-Evidence: workflow викликає `python docker/healthcheck.py`; Dockerfile копіює script лише у `/usr/local/bin/software-hub-healthcheck.py`.  
-Affected files: `.github/workflows/container-build.yml:102-108`, `Dockerfile:49-64`.  
-Reproduction steps: побудувати image і `docker compose exec -T app ls /app/docker`.  
-Observed result: `/app/docker/healthcheck.py` не створюється Dockerfile.  
-Expected result: job використовує installed healthcheck path.  
-Security or operational impact: Mandatory container CI fails; non-root/health evidence не завершується.  
-Exploitability: Operational; deterministic після build.  
-Recommendation: Викликати `/usr/local/bin/software-hub-healthcheck.py`.  
+Requirement: Container runtime job має виконуватися на actual image filesystem.
+Evidence: workflow викликає `python docker/healthcheck.py`; Dockerfile копіює script лише у `/usr/local/bin/software-hub-healthcheck.py`.
+Affected files: `.github/workflows/container-build.yml:102-108`, `Dockerfile:49-64`.
+Reproduction steps: побудувати image і `docker compose exec -T app ls /app/docker`.
+Observed result: `/app/docker/healthcheck.py` не створюється Dockerfile.
+Expected result: job використовує installed healthcheck path.
+Security or operational impact: Mandatory container CI fails; non-root/health evidence не завершується.
+Exploitability: Operational; deterministic після build.
+Recommendation: Викликати `/usr/local/bin/software-hub-healthcheck.py`.
 Verification after fix: full container workflow green.
 
 ### SH-AUDIT-008
 
-ID: SH-AUDIT-008  
-Severity: P2  
-Area: supply chain  
-Title: Third-party GitHub Actions не закріплені commit SHA  
-Status: resolved — all third-party action refs are full commit SHAs; update automation enabled  
+ID: SH-AUDIT-008
+Severity: P2
+Area: supply chain
+Title: Third-party GitHub Actions не закріплені commit SHA
+Status: resolved — all third-party action refs are full commit SHAs; update automation enabled
 Release blocker: no
 
-Requirement: CI dependencies мають бути immutable.  
-Historical evidence: checkout@v5, upload-artifact@v4, trivy-action@v0.36.0 були mutable.  
+Requirement: CI dependencies мають бути immutable.
+Historical evidence: checkout@v5, upload-artifact@v4, trivy-action@v0.36.0 були mutable.
 Resolution evidence: усі 15 `uses:` у чотирьох workflows мають 40-hex commit SHA і version
 comment; Trivy pinned до peeled commit `ed142fd…`; `.github/dependabot.yml` відкриває weekly
-reviewed GitHub Actions updates.  
-Affected files: усі 4 `.github/workflows/*.yml`.  
-Reproduction steps: `rg -n "uses:" .github/workflows`.  
-Observed result after fix: static regression scan — 15 refs, 0 mutable refs, 0 missing comments.  
-Expected result: full commit SHA + version comment.  
-Security or operational impact: Upstream tag movement може змінити trusted CI code.  
-Exploitability: Залежить від компрометації upstream/tag.  
-Recommendation: Pin SHA та автоматизувати reviewed updates.  
+reviewed GitHub Actions updates.
+Affected files: усі 4 `.github/workflows/*.yml`.
+Reproduction steps: `rg -n "uses:" .github/workflows`.
+Observed result after fix: static regression scan — 15 refs, 0 mutable refs, 0 missing comments.
+Expected result: full commit SHA + version comment.
+Security or operational impact: Upstream tag movement може змінити trusted CI code.
+Exploitability: Залежить від компрометації upstream/tag.
+Recommendation: Pin SHA та автоматизувати reviewed updates.
 Verification after fix: workflow scan без mutable third-party tags.
 
 ### SH-AUDIT-009
 
-ID: SH-AUDIT-009  
-Severity: P2  
-Area: release evidence  
-Title: Кандидат не має наданого provenance та immutable RC evidence  
-Status: resolved — immutable evidence generation and signed provenance are enforced in workflow  
+ID: SH-AUDIT-009
+Severity: P2
+Area: release evidence
+Title: Кандидат не має наданого provenance та immutable RC evidence
+Status: resolved — immutable evidence generation and signed provenance are enforced in workflow
 Release blocker: no, але це mandatory acceptance condition
 
-Requirement: Release має бути прив’язаний до конкретного commit/tag/archive/checksum та CI evidence.  
+Requirement: Release має бути прив’язаний до конкретного commit/tag/archive/checksum та CI evidence.
 Historical evidence: `.git` відсутня; не було CI URLs/artifacts, archive,
-checksum/signature, restore/Docker/browser evidence.  
+checksum/signature, restore/Docker/browser evidence.
 Resolution evidence: RC workflow вимагає tag `v<app version>`, перевіряє його commit проти
 `GITHUB_SHA`, будує deterministic `git archive | gzip -n`, створює SHA-256 та JSON manifest
 із repository/tag/commit/run URL/digest, підписує чотири evidence subjects через
   `actions/attest`, зберігає Sigstore bundle та attestation ID/URL і завантажує унікальний
   commit/attempt artifact на 90 днів. Для private/internal repository ця GitHub capability
-  вимагає Enterprise Cloud; неeligible tag run fail-closed, а не пропускає provenance.  
+  вимагає Enterprise Cloud; неeligible tag run fail-closed, а не пропускає provenance.
 Affected files: `.github/workflows/release-candidate.yml`, `docs/release-candidate.md`,
-`docs/production-acceptance.md`, `docs/release-checklist.md`.  
-Reproduction steps: inventory snapshot і `git status/log/tag`.  
+`docs/production-acceptance.md`, `docs/release-checklist.md`.
+Reproduction steps: inventory snapshot і `git status/log/tag`.
 Observed result after fix: mechanism and static regressions PASS; фактичний signed artifact
-буде створено лише наступним protected-tag run і лишається mandatory external acceptance.  
-Expected result: audited immutable artifact із traceable green evidence.  
-Security or operational impact: Неможливо довести, що deployed bits дорівнюють audited bits.  
-Exploitability: Release integrity/provenance risk.  
-Recommendation: Зібрати RC package на protected tagged commit.  
+буде створено лише наступним protected-tag run і лишається mandatory external acceptance.
+Expected result: audited immutable artifact із traceable green evidence.
+Security or operational impact: Неможливо довести, що deployed bits дорівнюють audited bits.
+Exploitability: Release integrity/provenance risk.
+Recommendation: Зібрати RC package на protected tagged commit.
 Verification after fix: незалежна checksum/tag/CI artifact verification.
 
 ### SH-AUDIT-010
 
-ID: SH-AUDIT-010  
-Severity: P3  
-Area: test portability  
-Title: Частина tests залежить від POSIX semantics/default encoding  
-Status: resolved — explicit UTF-8 and platform-capability guards; Windows suite PASS  
+ID: SH-AUDIT-010
+Severity: P3
+Area: test portability
+Title: Частина tests залежить від POSIX semantics/default encoding
+Status: resolved — explicit UTF-8 and platform-capability guards; Windows suite PASS
 Release blocker: no
 
-Requirement: Test limitations мають бути явними й deterministic.  
-Evidence: fallback full run — 460 passed, 43 failed, 10 skipped; більшість failures — chmod/symlink/fsync/executable-bit на Windows; theme test — cp1251 decode через `read_text()` без encoding.  
-Affected files: `tests/unit/test_theme_assets_phase14.py:55-65`, storage/backup/infrastructure tests.  
-Reproduction steps: повний pytest на Windows Python 3.13 fallback.  
-Observed result: platform noise маскує cross-platform signal.  
-Expected result: platform capability markers та explicit UTF-8.  
-Security or operational impact: Низький; погіршує reliability локальної перевірки.  
-Exploitability: Not applicable.  
-Recommendation: Mark Linux-only semantics, explicit encoding.  
+Requirement: Test limitations мають бути явними й deterministic.
+Evidence: fallback full run — 460 passed, 43 failed, 10 skipped; більшість failures — chmod/symlink/fsync/executable-bit на Windows; theme test — cp1251 decode через `read_text()` без encoding.
+Affected files: `tests/unit/test_theme_assets_phase14.py:55-65`, storage/backup/infrastructure tests.
+Reproduction steps: повний pytest на Windows Python 3.13 fallback.
+Observed result: platform noise маскує cross-platform signal.
+Expected result: platform capability markers та explicit UTF-8.
+Security or operational impact: Низький; погіршує reliability локальної перевірки.
+Exploitability: Not applicable.
+Recommendation: Mark Linux-only semantics, explicit encoding.
 Verification after fix: documented platform jobs без accidental failures.
 
 ## 8. Requirements traceability

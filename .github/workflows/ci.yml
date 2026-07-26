@@ -38,7 +38,16 @@ jobs:
         run: uv sync --all-groups --locked
 
       - name: Create test-results directory
-        run: mkdir -p test-results/quality
+        run: |
+          mkdir -p test-results/quality
+          mkdir -p \
+            .test-runtime/database \
+            .test-runtime/storage/software \
+            .test-runtime/storage/icons \
+            .test-runtime/storage/import \
+            .test-runtime/storage/temporary \
+            .test-runtime/storage/quarantine \
+            .test-runtime/backups
 
       - name: Verify frozen runtime export
         run: uv export --frozen --no-dev --output-file test-results/quality/requirements.txt
@@ -56,6 +65,15 @@ jobs:
         run: uv run mypy --junit-xml test-results/quality/mypy.xml
 
       - name: Pytest with coverage
+        env:
+          SOFTWARE_HUB_DATABASE_URL: sqlite+pysqlite:///${{ github.workspace }}/.test-runtime/database/software-hub.db
+          SOFTWARE_HUB_STORAGE_ROOT: ${{ github.workspace }}/.test-runtime/storage
+          SOFTWARE_HUB_TEMPORARY_ROOT: ${{ github.workspace }}/.test-runtime/storage/temporary
+          SOFTWARE_HUB_QUARANTINE_ROOT: ${{ github.workspace }}/.test-runtime/storage/quarantine
+          SOFTWARE_HUB_ICONS_ROOT: ${{ github.workspace }}/.test-runtime/storage/icons
+          SOFTWARE_HUB_BACKUP_ROOT: ${{ github.workspace }}/.test-runtime/backups
+          SOFTWARE_HUB_STORAGE_MIN_FREE_BYTES: "0"
+          SOFTWARE_HUB_BACKUP_MIN_FREE_BYTES: "0"
         run: uv run pytest --junitxml=test-results/quality/pytest.xml
 
       - name: Bandit

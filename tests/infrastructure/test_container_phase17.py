@@ -61,21 +61,26 @@ def test_compose_services_have_container_hardening() -> None:
         assert "/var/run/docker.sock" not in str(service.get("volumes", []))
 
 
-def test_compose_mounts_only_required_writable_app_paths() -> None:
+def test_compose_mounts_atomic_application_root_without_tls_secrets() -> None:
     compose = _yaml("docker-compose.yml")
     app_volumes = compose["services"]["app"]["volumes"]
     nginx_volumes = compose["services"]["nginx"]["volumes"]
 
-    app_targets = {volume["target"]: volume for volume in app_volumes}
-    assert set(app_targets) == {
-        "/srv/software-hub/database",
-        "/srv/software-hub/storage",
-        "/srv/software-hub/backups",
-    }
-    assert all(not volume.get("read_only", False) for volume in app_volumes)
+    assert app_volumes == [
+        {
+            "type": "bind",
+            "source": "${SOFTWARE_HUB_DATA_ROOT:-./.runtime}/application",
+            "target": "/srv/software-hub",
+        }
+    ]
+    assert "letsencrypt" not in str(app_volumes)
+    assert "certbot" not in str(app_volumes)
 
     nginx_targets = {volume["target"]: volume for volume in nginx_volumes}
     assert nginx_targets["/srv/software-hub/storage/software"]["read_only"] is True
+    assert nginx_targets["/srv/software-hub/storage/software"]["source"].endswith(
+        "/application/storage/software"
+    )
     assert nginx_targets["/var/www/certbot"]["read_only"] is True
     assert (
         nginx_targets["/etc/software-hub/nginx/snippets/admin-access-runtime.conf"]["read_only"]
@@ -127,6 +132,7 @@ def test_nginx_templates_enforce_security_boundaries() -> None:
         assert "admin-access-runtime.conf" not in config
         assert "${SOFTWARE_HUB_ADMIN_ACCESS_FILE}" in config
         assert "location ^~ /static/" in config
+        assert "location = /admin {" in config
         assert "limit_req zone=login_requests" in config
         assert "limit_req zone=download_requests" in config
         assert "disable_symlinks on;" in config

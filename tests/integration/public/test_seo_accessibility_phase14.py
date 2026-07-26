@@ -131,6 +131,20 @@ def test_public_shell_contains_trusted_seo_and_accessibility_metadata(
     assert "<script>" not in response.text
 
 
+def test_populated_home_software_card_ids_are_unique(
+    application: FastAPI,
+    client: TestClient,
+) -> None:
+    _seed_public_pages(application)
+
+    response = client.get("/")
+
+    identifiers = re.findall(r'\sid="([^"]+)"', response.text)
+    assert len(identifiers) == len(set(identifiers))
+    assert 'id="software-latest-accessible-tool-title"' in response.text
+    assert 'id="software-popular-accessible-tool-title"' in response.text
+
+
 def test_search_is_noindex_and_public_detail_has_article_metadata(
     application: FastAPI,
     client: TestClient,

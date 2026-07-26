@@ -19,8 +19,9 @@ Recommended Ubuntu Server baseline:
 - Docker Engine with the Compose plugin;
 - 2 vCPU and 2–4 GiB RAM;
 - 20–30 GiB system disk;
-- a separate filesystem or virtual disk for `/srv/software-hub/storage` when the
-  catalog will contain large installers;
+- a separate filesystem or virtual disk for
+  `/srv/software-hub/application/storage` when the catalog will contain large
+  installers;
 - TCP 80 and 443 open to the public server;
 - SSH keys, disabled root login and disabled password authentication;
 - WireGuard or an explicit source-IP allowlist for `/admin`.
@@ -42,14 +43,18 @@ sudo SOFTWARE_HUB_DATA_ROOT=/srv/software-hub \
 The resulting write boundaries are:
 
 ```text
-app rw:    database/, storage/, backups/, /tmp tmpfs
-nginx ro:  storage/software/, Let's Encrypt data, admin allowlist
+app rw:    application/ mounted at /srv/software-hub, /tmp tmpfs
+nginx ro:  application/storage/software/, Let's Encrypt data, admin allowlist
 nginx rw:  /tmp tmpfs only
 certbot:   letsencrypt/, certbot/www/, certbot/logs/, /tmp tmpfs
 ```
 
 All containers use a read-only root filesystem, drop every Linux capability and
 set `no-new-privileges`.
+
+The single `application/` bind is required by the atomic backup restore
+implementation. TLS and Certbot state are deliberately siblings of
+`application/`, never children visible to the app container.
 
 ## 3. Production environment
 

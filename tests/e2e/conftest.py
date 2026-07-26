@@ -76,6 +76,12 @@ def _terminate(process: subprocess.Popen[str]) -> None:
 def _write_nginx_config(path: Path, *, app_port: int, public_port: int, storage: Path) -> None:
     mime_types = Path("/etc/nginx/mime.types")
     include_mime = f"include {mime_types};" if mime_types.exists() else ""
+    temp_directories = {
+        name: path.parent / f"nginx-{name}-temp"
+        for name in ("client-body", "proxy", "fastcgi", "uwsgi", "scgi")
+    }
+    for directory in temp_directories.values():
+        directory.mkdir(parents=True, exist_ok=True)
     path.write_text(
         f"""
 worker_processes 1;
@@ -85,6 +91,11 @@ events {{ worker_connections 256; }}
 http {{
     {include_mime}
     access_log {path.parent / "nginx-access.log"};
+    client_body_temp_path {temp_directories["client-body"]};
+    proxy_temp_path {temp_directories["proxy"]};
+    fastcgi_temp_path {temp_directories["fastcgi"]};
+    uwsgi_temp_path {temp_directories["uwsgi"]};
+    scgi_temp_path {temp_directories["scgi"]};
     client_max_body_size 16m;
     server_tokens off;
     server {{

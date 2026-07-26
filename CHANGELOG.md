@@ -3,6 +3,24 @@
 All notable changes to Software Hub are documented here. The format follows
 Keep a Changelog principles and semantic versioning.
 
+## [1.0.0-rc.2] - 2026-07-26
+
+Second release candidate after the full Linux and VPS release audit.
+
+### Fixed
+
+- executable Git modes for release, deployment and container shell scripts;
+- isolated writable runtime paths for the Ubuntu CI pytest job;
+- pre-commit formatting drift in committed documentation;
+- Nginx handling of the exact `/admin` route without leaking internal ports;
+- Playwright axe-core injection under the production content security policy;
+- non-root writable Nginx temp paths and current dashboard assertions in the
+  production-like browser test harness;
+- atomic container backup restore through one application data-root bind while
+  keeping TLS and Certbot material outside the app trust boundary;
+- unique software-card heading ids when one item appears in multiple home-page
+  sections.
+
 ## [1.0.0-rc.1] - 2026-07-26
 
 First release candidate of the production-ready MVP.
@@ -52,4 +70,5 @@ First release candidate of the production-ready MVP.
 - final production acceptance on `software.hotzagor.tech` is Phase 20 and is not
   claimed by this release candidate.
 
+[1.0.0-rc.2]: docs/release-candidate.md
 [1.0.0-rc.1]: docs/release-candidate.md

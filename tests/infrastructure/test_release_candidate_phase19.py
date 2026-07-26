@@ -12,7 +12,7 @@ from app.core.config import AppSettings
 from packaging.version import Version
 
 ROOT = Path(__file__).resolve().parents[2]
-EXPECTED_VERSION = "1.0.0-rc.1"
+EXPECTED_VERSION = "1.0.0-rc.2"
 
 
 def test_release_candidate_version_is_consistent() -> None:

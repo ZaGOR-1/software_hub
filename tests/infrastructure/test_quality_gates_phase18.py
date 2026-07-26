@@ -43,6 +43,15 @@ def test_quality_workflow_enforces_all_python_gates() -> None:
     ):
         assert required in text
     assert "continue-on-error" not in text
+    for writable_setting in (
+        "SOFTWARE_HUB_DATABASE_URL",
+        "SOFTWARE_HUB_STORAGE_ROOT",
+        "SOFTWARE_HUB_TEMPORARY_ROOT",
+        "SOFTWARE_HUB_QUARANTINE_ROOT",
+        "SOFTWARE_HUB_ICONS_ROOT",
+        "SOFTWARE_HUB_BACKUP_ROOT",
+    ):
+        assert writable_setting in text
 
 
 def test_release_verifier_audits_the_frozen_runtime_graph() -> None:
@@ -122,6 +131,7 @@ def test_e2e_suite_contains_critical_flow_and_accessibility_matrix() -> None:
     full_flow = (_ROOT / "tests" / "e2e" / "test_full_flow.py").read_text(encoding="utf-8")
     matrix = (_ROOT / "tests" / "e2e" / "test_accessibility_matrix.py").read_text(encoding="utf-8")
     audit = (_ROOT / "tests" / "e2e" / "accessibility.py").read_text(encoding="utf-8")
+    fixture = (_ROOT / "tests" / "e2e" / "conftest.py").read_text(encoding="utf-8")
 
     for phrase in (
         "Створити категорію",
@@ -135,6 +145,9 @@ def test_e2e_suite_contains_critical_flow_and_accessibility_matrix() -> None:
         assert phrase in full_flow
     for browser in ("chromium", "firefox", "webkit"):
         assert browser in matrix
+    assert "bypass_csp=True" in matrix
+    assert "client_body_temp_path" in fixture
+    assert "proxy_temp_path" in fixture
     for rule in (
         "exactly one main landmark",
         "exactly one h1",

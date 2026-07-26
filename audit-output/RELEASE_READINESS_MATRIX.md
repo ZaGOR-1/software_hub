@@ -1,7 +1,7 @@
 # Release Readiness Matrix — Software Hub 1.0.0-rc.1
 
-Дата аудиту: 2026-07-26  
-Вердикт: **NO-GO (original full audit; re-audit pending)**  
+Дата аудиту: 2026-07-26
+Вердикт: **NO-GO (original full audit; re-audit pending)**
 Рахунок статусів: **PASS 10 / FAIL 3 / BLOCKED BY ENVIRONMENT 8 / PARTIAL 9**
 
 > Focused remediation update (2026-07-26): **7/7 P1, 2/2 P2 and 1/1 P3 resolved;

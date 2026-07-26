@@ -1,7 +1,7 @@
 # Phase 3 completion review
 
-**Phase:** Database foundation and Alembic  
-**Status:** Implemented  
+**Phase:** Database foundation and Alembic
+**Status:** Implemented
 **Date:** 2026-07-23
 
 ## Scope delivered

@@ -19,7 +19,7 @@ def _login(page: Page, stack: E2EStack) -> None:
     page.locator("#password").fill(stack.password)
     page.get_by_role("button", name="Увійти").click()
     expect(page).to_have_url(re.compile(r"/admin(?:\?.*)?$"))
-    expect(page.get_by_role("heading", name="Панель керування")).to_be_visible()
+    expect(page.get_by_role("heading", name="Огляд Software Hub")).to_be_visible()
 
 
 def _id_from_url(page: Page, pattern: str) -> int:

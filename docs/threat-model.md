@@ -1,8 +1,8 @@
 # Software Hub — Threat Model
 
-**Статус:** reviewed for `1.0.0-rc.1`  
-**Дата:** 2026-07-26  
-**Метод:** asset/threat-oriented аналіз із категоріями STRIDE  
+**Статус:** reviewed for `1.0.0-rc.2`
+**Дата:** 2026-07-26
+**Метод:** asset/threat-oriented аналіз із категоріями STRIDE
 **Потребує перегляду:** перед production release і після будь-якої зміни trust boundaries
 
 ## 1. Мета

@@ -18,7 +18,11 @@ _BROWSERS = ["chromium", "firefox", "webkit"]
 
 
 def _assert_accessible(page_url: str, browser: Browser, viewport: ViewportSize) -> None:
-    context = browser.new_context(viewport=viewport, locale="uk-UA")
+    context = browser.new_context(
+        viewport=viewport,
+        locale="uk-UA",
+        bypass_csp=True,
+    )
     page = context.new_page()
     try:
         page.goto(page_url)

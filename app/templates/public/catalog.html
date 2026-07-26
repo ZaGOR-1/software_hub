@@ -51,6 +51,7 @@
     </div>
     {% if view.page.items %}
     <div class="software-grid">
+      {% set card_id_prefix = "catalog" %}
       {% for card in view.page.items %}{% include "components/public_software_card.html" %}{% endfor %}
     </div>
     {% include "components/public_pagination.html" %}

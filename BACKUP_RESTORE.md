@@ -100,6 +100,11 @@ replaced on their own filesystems. If replacement or migration fails, the old
 paths are restored. The restored SQLite database receives `alembic upgrade head`
 and a final integrity check before success is reported.
 
+For containers, `${SOFTWARE_HUB_DATA_ROOT}/application` must be mounted once at
+`/srv/software-hub`. Do not mount `database`, `storage` and `backups` as separate
+mount points: Linux cannot atomically rename a mount point during rollback.
+Certificate and Certbot directories remain outside `application/`.
+
 Only during a separately verified emergency may the safety backup be disabled:
 
 ```bash

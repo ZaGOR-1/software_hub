@@ -19,13 +19,13 @@ case "${root}" in
 esac
 
 for directory in \
-    "${root}/database" \
-    "${root}/storage/software" \
-    "${root}/storage/icons" \
-    "${root}/storage/import" \
-    "${root}/storage/temporary" \
-    "${root}/storage/quarantine" \
-    "${root}/backups" \
+    "${root}/application/database" \
+    "${root}/application/storage/software" \
+    "${root}/application/storage/icons" \
+    "${root}/application/storage/import" \
+    "${root}/application/storage/temporary" \
+    "${root}/application/storage/quarantine" \
+    "${root}/application/backups" \
     "${root}/certbot/www" \
     "${root}/certbot/logs" \
     "${root}/certbot/lib" \

@@ -1,6 +1,6 @@
 # Remediation plan — Software Hub 1.0.0-rc.1
 
-Поточний стан: **7/7 P1, 2/2 P2, 1/1 P3 RESOLVED; FULL RE-AUDIT PENDING**.  
+Поточний стан: **7/7 P1, 2/2 P2, 1/1 P3 RESOLVED; FULL RE-AUDIT PENDING**.
 Мета: створити новий відтворюваний RC, а не повторно позначити `1.0.0-rc.1` готовим.
 
 ## Focused remediation completion — 2026-07-26

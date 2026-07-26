@@ -1,9 +1,9 @@
 # Historical release blockers and remediation — Software Hub 1.0.0-rc.1
 
-Вердикт: **NO-GO (full re-audit pending)**  
-P0: 0  
+Вердикт: **NO-GO (full re-audit pending)**
+P0: 0
 P1: **0 open / 7 resolved**
-P2: **0 open / 2 resolved**  
+P2: **0 open / 2 resolved**
 P3: **0 open / 1 resolved**
 
 Цей файл зберігає початкові stop-ship P1 та обов’язкові acceptance conditions. Усі сім

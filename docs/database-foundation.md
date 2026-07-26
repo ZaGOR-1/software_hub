@@ -95,7 +95,7 @@ Healthy response:
 {
   "status": "ok",
   "service": "software-hub",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.2",
   "checks": {
     "database": "ok"
   }

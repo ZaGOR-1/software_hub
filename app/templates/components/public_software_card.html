@@ -1,8 +1,9 @@
-<article class="software-card" aria-labelledby="software-{{ card.slug }}-title">
+{% set card_title_id = "software-" ~ card_id_prefix ~ "-" ~ card.slug ~ "-title" %}
+<article class="software-card" aria-labelledby="{{ card_title_id }}">
   <div class="software-card-heading">
     <div class="software-icon" aria-hidden="true">{{ card.initials }}</div>
     <div>
-      <h3 id="software-{{ card.slug }}-title">
+      <h3 id="{{ card_title_id }}">
         <a href="/software/{{ card.slug }}">{{ card.name }}</a>
       </h3>
       <p class="software-version">

@@ -1,7 +1,7 @@
 # Software Hub — звіт про Фазу 2
 
-**Фаза:** Конфігурація, application core, logging і error handling  
-**Версія застосунку:** `0.1.0`  
+**Фаза:** Конфігурація, application core, logging і error handling
+**Версія застосунку:** `0.1.0`
 **Target runtime:** Python `>=3.14,<3.15`
 
 ## Мета фази
