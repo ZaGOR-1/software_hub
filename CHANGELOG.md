@@ -3,6 +3,15 @@
 All notable changes to Software Hub are documented here. The format follows
 Keep a Changelog principles and semantic versioning.
 
+## [1.0.0-rc.3] - 2026-07-26
+
+Third release candidate after publishing the repository to GitHub.
+
+### Fixed
+
+- GitHub Actions environment synchronization with `UV_FROZEN=1` by removing
+  the redundant and incompatible `uv sync --locked` flag.
+
 ## [1.0.0-rc.2] - 2026-07-26
 
 Second release candidate after the full Linux and VPS release audit.
@@ -70,5 +79,6 @@ First release candidate of the production-ready MVP.
 - final production acceptance on `software.hotzagor.tech` is Phase 20 and is not
   claimed by this release candidate.
 
+[1.0.0-rc.3]: docs/release-candidate.md
 [1.0.0-rc.2]: docs/release-candidate.md
 [1.0.0-rc.1]: docs/release-candidate.md

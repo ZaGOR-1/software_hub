@@ -33,7 +33,7 @@ jobs:
         run: uv python install 3.14
 
       - name: Synchronize locked application environment
-        run: uv sync --all-groups --locked
+        run: uv sync --all-groups
 
       - name: Install Nginx and Playwright browser dependencies
         run: |

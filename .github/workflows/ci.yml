@@ -35,7 +35,7 @@ jobs:
         run: uv lock --check
 
       - name: Synchronize environment
-        run: uv sync --all-groups --locked
+        run: uv sync --all-groups
 
       - name: Create test-results directory
         run: |
