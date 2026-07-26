@@ -1,0 +1,1 @@
+"""Public browser routes."""

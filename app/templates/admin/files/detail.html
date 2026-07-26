@@ -1,0 +1,93 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ release_file.display_filename }}{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <a class="back-link" href="/admin/releases/{{ release.id }}/edit">← Реліз {{ release.version }}</a>
+    <p class="eyebrow">Release file</p>
+    <h1>{{ release_file.display_filename }}</h1>
+    <p>{{ software.name }} · {{ release.version }}</p>
+  </div>
+</div>
+<section class="panel metadata-grid">
+  <div><span>Статус</span><strong>{{ release_file.status.value }}</strong></div>
+  <div><span>Scanner</span><strong>{{ release_file.scanner_status.value }}</strong></div>
+  <div><span>Розмір</span><strong>{{ release_file.file_size_bytes }} B</strong></div>
+  <div><span>Magic bytes</span><strong>{{ magic_assessment.value }}</strong></div>
+  <div><span>Тип</span><strong>{{ release_file.detected_mime_type }}</strong></div>
+  <div><span>Розширення</span><strong>{{ release_file.file_extension }}</strong></div>
+  <div><span>Архітектура</span><strong>{{ release_file.architecture.value }}</strong></div>
+  <div><span>Пакет</span><strong>{{ release_file.package_type.value }}</strong></div>
+  <div><span>Платформа</span><strong>{{ release_file.platform }}</strong></div>
+  <div><span>Видимість</span><strong>{{ release_file.visibility.value }}</strong></div>
+</section>
+<section class="panel metadata-grid">
+  <div><span>Фізичний файл</span><strong>{{ 'наявний' if storage_state.exists else 'відсутній' }}</strong></div>
+  <div><span>Storage area</span><strong>{{ storage_state.area.value if storage_state.area else '—' }}</strong></div>
+  <div><span>Фактичний розмір</span><strong>{{ storage_state.size_bytes ~ ' B' if storage_state.size_bytes is not none else '—' }}</strong></div>
+  <div><span>Розмір збігається</span><strong>{{ 'так' if storage_state.size_matches else 'ні' }}</strong></div>
+</section>
+<section class="panel">
+  <h2>Контрольна сума</h2>
+  <code class="hash-value">{{ release_file.sha256 }}</code>
+</section>
+<section class="panel metadata-grid">
+  <div><span>Оригінальне ім’я</span><strong>{{ release_file.original_filename }}</strong></div>
+  <div><span>Внутрішнє ім’я</span><code>{{ release_file.storage_filename }}</code></div>
+  <div><span>Відносний шлях</span><code>{{ release_file.relative_storage_path }}</code></div>
+  <div><span>Client MIME</span><strong>Не використовується для довіри</strong></div>
+</section>
+<section class="panel form-panel">
+  <h2>Майбутній публічний URL</h2>
+  <label>URL<input readonly value="{{ public_url }}"></label>
+  <p class="form-help">Маршрут завантаження та X-Accel-Redirect буде активовано у Фазі 12.</p>
+</section>
+{% if release_file.scanner_details %}<section class="panel"><h2>Scanner details</h2><p>{{ release_file.scanner_details }}</p></section>{% endif %}
+{% if release_file.admin_note %}<section class="panel"><h2>Примітка</h2><p class="pre-wrap">{{ release_file.admin_note }}</p></section>{% endif %}
+<section class="panel">
+  <div class="panel-heading"><h2>Дублікати SHA-256</h2><span>{{ duplicates|length }}</span></div>
+  {% if duplicates %}<ul>{% for item in duplicates %}<li><a href="/admin/files/{{ item.id }}">{{ item.display_filename }}</a> · {{ item.release.version }}</li>{% endfor %}</ul>{% else %}<p class="empty-state">Інших записів із цією контрольною сумою немає.</p>{% endif %}
+</section>
+<section class="panel">
+  <div class="panel-heading"><h2>Перевірка та lifecycle</h2><span class="badge">{{ release_file.status.value }}</span></div>
+  <div class="button-row">
+    {% if storage_state.exists %}<form method="post" action="/admin/files/{{ release_file.id }}/verify">{% include "components/csrf.html" %}<button class="button button-secondary" type="submit">Перевірити SHA-256</button></form>{% endif %}
+    {% if release_file.status.value == 'quarantine' %}
+      <form method="post" action="/admin/files/{{ release_file.id }}/review/approve">{% include "components/csrf.html" %}<button class="button" type="submit">Схвалити як ready</button></form>
+      <form method="post" action="/admin/files/{{ release_file.id }}/review/reject">{% include "components/csrf.html" %}<button class="button button-danger" type="submit">Відхилити</button></form>
+    {% elif release_file.status.value == 'ready' %}
+      <form method="post" action="/admin/files/{{ release_file.id }}/publish">{% include "components/csrf.html" %}<button class="button" type="submit">Опублікувати</button></form>
+      <form method="post" action="/admin/files/{{ release_file.id }}/review/reject">{% include "components/csrf.html" %}<button class="button button-danger" type="submit">Відхилити</button></form>
+      <form method="post" action="/admin/files/{{ release_file.id }}/disable">{% include "components/csrf.html" %}<button class="button button-secondary" type="submit">Вимкнути</button></form>
+      <form method="post" action="/admin/files/{{ release_file.id }}/archive">{% include "components/csrf.html" %}<button class="button button-secondary" type="submit">Архівувати</button></form>
+    {% elif release_file.status.value == 'rejected' %}
+      <form method="post" action="/admin/files/{{ release_file.id }}/review/reopen">{% include "components/csrf.html" %}<button class="button button-secondary" type="submit">Повернути в quarantine</button></form>
+    {% elif release_file.status.value == 'published' %}
+      <form method="post" action="/admin/files/{{ release_file.id }}/disable">{% include "components/csrf.html" %}<button class="button button-danger" type="submit">Вимкнути</button></form>
+      <form method="post" action="/admin/files/{{ release_file.id }}/archive">{% include "components/csrf.html" %}<button class="button button-secondary" type="submit">Архівувати</button></form>
+    {% elif release_file.status.value in ['disabled', 'archived'] %}
+      <form method="post" action="/admin/files/{{ release_file.id }}/restore">{% include "components/csrf.html" %}<button class="button" type="submit">Повернути в ready</button></form>
+    {% endif %}
+  </div>
+</section>
+{% if release_file.status.value != 'published' %}
+<section class="panel form-panel narrow danger-zone">
+  <h2>Небезпечні дії</h2>
+  <p><strong>Delete metadata</strong> видаляє лише запис із бази. Фізичний файл навмисно залишиться orphan-файлом для подальшої ручної перевірки.</p>
+  <form method="post" action="/admin/files/{{ release_file.id }}/delete-metadata">
+    {% include "components/csrf.html" %}
+    <label>Введіть DELETE METADATA<input name="confirmation" autocomplete="off" required></label>
+    <button class="button button-danger" type="submit">Видалити лише metadata</button>
+  </form>
+  <hr>
+  <p><strong>Permanent delete</strong> видаляє metadata та фізичний файл. Відновлення можливе лише з backup.</p>
+  <form method="post" action="/admin/files/{{ release_file.id }}/delete-permanently">
+    {% include "components/csrf.html" %}
+    <label>Введіть DELETE FILE<input name="confirmation" autocomplete="off" required></label>
+    <button class="button button-danger" type="submit">Видалити файл назавжди</button>
+  </form>
+</section>
+{% else %}
+<p class="form-help">Перед видаленням опублікований файл потрібно вимкнути або архівувати.</p>
+{% endif %}
+{% endblock %}

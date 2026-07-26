@@ -1,0 +1,103 @@
+SOFTWARE HUB — PHASE 13 MANIFEST
+================================
+
+Scope
+-----
+Public home page, catalog, search, category/tag filtering, pagination, software
+pages, release history and protected download buttons. Phase 13 does not change
+the database schema and does not replace the Phase 12 download authorization
+boundary.
+
+Main files added
+----------------
+app/repositories/public_catalog_repository.py
+app/services/public_catalog_service.py
+app/schemas/public_catalog.py
+app/routers/public/common.py
+app/routers/public/catalog.py
+app/templates/public/base.html
+app/templates/public/home.html
+app/templates/public/catalog.html
+app/templates/public/software_detail.html
+app/templates/public/releases.html
+app/templates/components/public_software_card.html
+app/templates/components/public_file_table.html
+app/templates/components/public_pagination.html
+app/static/css/public.css
+app/static/icons/favicon.svg
+tests/integration/public/test_public_catalog_phase13.py
+tests/unit/services/test_public_catalog_service_phase13.py
+docs/public-catalog.md
+docs/phase-13-review.md
+
+Main files changed
+------------------
+app/main.py
+app/repositories/software_repository.py
+app/repositories/__init__.py
+app/services/__init__.py
+app/schemas/__init__.py
+README.md
+docs/README.md
+docs/threat-model.md
+docs/release-checklist.md
+
+Public routes
+-------------
+GET /
+GET /software
+GET /search
+GET /category/{category_slug}
+GET /software/{software_slug}
+GET /software/{software_slug}/releases
+GET /robots.txt
+GET /favicon.ico
+
+Security properties
+-------------------
+- General discovery is limited to published + public software.
+- Unlisted and archived entries require an exact slug.
+- Private entries require an active administrator session.
+- Disabled entries remain inaccessible to all public-page callers.
+- Public templates receive immutable view models, not ORM entities.
+- Storage names, physical paths, admin notes and scanner details are excluded.
+- Draft/disabled releases and all non-published files are excluded.
+- Anonymous file lists expose only public files.
+- Search length is bounded and SQL LIKE wildcards are escaped.
+- Hidden categories and private-only tags are not public facets.
+- Public popularity excludes private and unlisted file counters.
+- Jinja autoescape remains enabled; no user content uses |safe.
+- Private/unlisted direct pages emit noindex, nofollow.
+
+Verification
+------------
+pytest:                         436 passed
+branch coverage:               94.36%
+warnings:                      0
+python compileall:             passed
+function annotation audit:     passed
+python lines over 100 chars:   0
+jinja templates:               35 passed
+public query count bound:      passed
+production-like Uvicorn smoke: passed
+alembic upgrade/check:         passed
+alembic downgrade/re-upgrade:  passed
+alembic schema drift:          absent
+migration head:                0002_phase4_domain_schema
+uv export --frozen --no-dev:   passed
+toml/yaml parsing:             passed
+markdown internal links:       58 passed
+
+Production-like Uvicorn routes
+------------------------------
+GET /                              200
+GET /software                      200
+GET /software/smoke-tool           200
+GET /software/smoke-tool/releases  200
+
+Environment limitation
+----------------------
+The offline sandbox runs Python 3.13.5. The target remains Python 3.14. Ruff,
+mypy, Bandit and pip-audit executables are not cached; a Ruff fetch attempt
+returned HTTP 503. GitHub Actions remains the mandatory Python 3.14 lint, strict
+typing and security quality gate.

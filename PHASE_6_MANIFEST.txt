@@ -1,0 +1,156 @@
+Software Hub — Phase 6 manifest
+Generated: 2026-07-23
+
+Scope:
+- Argon2id password hashing and policy validation
+- manual administrator provisioning with no default password
+- generic login failure behavior and timing-work equalization
+- account failed-attempt tracking and temporary lockout
+- opaque server-side sessions with hashed database tokens
+- fresh login session creation and previous-token revocation
+- idle timeout, absolute timeout and bounded activity refresh
+- session revocation, logout and expired-session cleanup
+- password-change session revocation
+- secure cookie policy and protected admin dependency
+- HMAC-only client metadata for audit signals
+- sanitized authentication audit events
+- administrator/session maintenance CLI
+- minimal server-rendered login and protected admin proof pages
+- authentication and session documentation
+
+Target runtime: Python >=3.14,<3.15
+Local validation runtime: Python 3.13.5
+Migration head: 0002_phase4_domain_schema
+Schema changes in Phase 6: none
+Locked auth dependency: argon2-cffi 25.1.0
+Locked form dependency: python-multipart 0.0.32
+
+PHASE 6 FINAL VALIDATION
+
+[1] compile and test suite
+PASS: app, tests and Alembic modules compile
+PASS: 268 tests
+PASS: 98.40% branch-aware coverage
+PASS: 0 warnings
+PASS: coverage threshold 90%
+
+[2] password security
+PASS: Argon2id is explicitly selected
+PASS: approved production defaults m=65536 KiB, t=3, p=4
+PASS: production cannot lower approved time or memory cost
+PASS: password length and username-equality policy
+PASS: malformed hashes fail authentication safely
+PASS: valid older hashes can be rehashed after login
+PASS: unknown usernames perform dummy Argon2 verification
+PASS: passwords are never accepted as CLI arguments
+
+[3] administrator login and lockout
+PASS: no public registration or default administrator
+PASS: usernames are normalized and unique
+PASS: unknown, wrong, inactive and locked login use generic HTTP feedback
+PASS: failed attempts increment and reset correctly
+PASS: fifth failed attempt starts the default 15-minute lockout
+PASS: expired lockout can recover
+PASS: successful login updates last_login_at
+PASS: authentication successes and failures are audited
+
+[4] server-side sessions
+PASS: random 32-byte URL-safe bearer token generation
+PASS: raw token returned once and only SHA-256 stored in SQLite
+PASS: fresh session on every successful login
+PASS: previous cookie token revoked during login rotation
+PASS: idle timeout default 30 minutes
+PASS: absolute lifetime default 12 hours
+PASS: idle refresh capped by absolute lifetime
+PASS: revoked, expired and inactive-user sessions rejected
+PASS: password change revokes all sessions
+PASS: explicit revoke-all and cleanup commands
+PASS: IP and User-Agent persisted only as purpose-separated HMAC identifiers
+PASS: fingerprint changes are audit signals, not brittle auth factors
+
+[5] HTTP and cookies
+PASS: GET /admin/login
+PASS: POST /admin/login
+PASS: POST /admin/logout
+PASS: protected GET /admin
+PASS: anonymous admin access redirects to login
+PASS: successful login redirects and sets opaque cookie
+PASS: logout revokes server state and deletes browser cookie
+PASS: HttpOnly
+PASS: SameSite=Lax by default
+PASS: cookie Path=/admin
+PASS: Secure forced in production
+PASS: Cache-Control no-store on authentication responses
+PASS: noindex/no-follow metadata on auth/admin proof pages
+NOTE: CSRF protection is explicitly Phase 7 and remains required before production.
+
+[6] CLI
+PASS: create-admin
+PASS: change-admin-password
+PASS: revoke-sessions
+PASS: cleanup-expired-sessions
+PASS: shell-friendly exit codes
+PASS: interactive or temporary environment password input
+PASS: no password/hash/token output
+PASS: real migrated-database create-admin smoke test
+
+[7] audit and privacy
+PASS: stable auth action identifiers
+PASS: sanitized metadata before append
+PASS: sensitive keys discarded
+PASS: raw passwords, cookies, CSRF values and session tokens absent
+PASS: raw IP and User-Agent absent from persistence
+
+[8] database and migrations
+PASS: no Phase 6 schema migration required
+PASS: clean upgrade to 0002_phase4_domain_schema
+PASS: downgrade to 0001_phase3_baseline
+PASS: re-upgrade to head
+PASS: Alembic check reports no schema drift
+
+[9] runtime smoke
+PASS: real Uvicorn /health
+PASS: real login form render
+PASS: real form login returns 303 and cookie
+PASS: authenticated admin page render
+PASS: logout returns 303
+PASS: old cookie rejected after logout
+
+[10] dependency and lock validation
+PASS: pyproject.toml parses
+PASS: uv.lock parses
+PASS: complete dependency graph closure
+PASS: root dependency metadata matches Phase 6 dependencies
+PASS: uv export --frozen succeeds
+PASS: hashes recorded for Argon2 and multipart dependency artifacts
+PASS: python-multipart locked to 0.0.32
+NOTE: sandbox-installed python-multipart is 0.0.29; exact locked sync is a CI gate.
+
+[11] source and documentation hygiene
+PASS: 107 Python files parse through ast
+PASS: configured 100-character source line limit
+PASS: TOML/YAML parse
+PASS: internal Markdown links resolve
+PASS: README and .env.example updated
+PASS: authentication/session architecture documented
+PASS: threat model implementation status updated
+PASS: no runtime databases, secrets or raw auth tokens packaged
+
+[12] environment limitations
+- Python 3.14 is not installed in the execution sandbox.
+- Ruff, mypy, Bandit and pip-audit executables are not available locally.
+- Network restrictions prevent authoritative uv sync --all-groups --locked.
+- Those checks remain mandatory in GitHub Actions using Python 3.14 and the
+  committed lock file.
+- Functional validation completed on Python 3.13.5 with argon2-cffi 25.1.0.
+
+[13] scope guard
+PASS: no CSRF protocol was prematurely implemented
+PASS: no full admin CRUD/dashboard was added
+PASS: no upload/download storage logic was added
+PASS: no public registration, password-reset email, JWT or RBAC was added
+
+[14] packaging
+PASS: source tree cleaned of caches, coverage output and runtime databases
+PASS: ZIP integrity verified after creation
+PASS: SHA-256 checksum generated

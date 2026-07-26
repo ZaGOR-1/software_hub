@@ -1,0 +1,92 @@
+server {
+    listen 8080 default_server;
+    server_name ${SOFTWARE_HUB_DOMAIN};
+
+    client_max_body_size 2g;
+    client_body_timeout 60s;
+    send_timeout 60s;
+    limit_conn per_ip_connections 30;
+
+    resolver 127.0.0.11 ipv6=off valid=30s;
+    set $software_hub_app http://app:8000;
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type text/plain;
+        try_files $uri =404;
+    }
+
+    location ^~ /static/ {
+        alias /usr/share/nginx/html/static/;
+        autoindex off;
+        expires 1h;
+        add_header Cache-Control "public, max-age=3600" always;
+        include /etc/software-hub/nginx/snippets/security_headers.conf;
+    }
+
+    location ^~ /protected-downloads/ {
+        internal;
+        alias /srv/software-hub/storage/software/;
+        autoindex off;
+        disable_symlinks on;
+        include /etc/software-hub/nginx/snippets/security_headers.conf;
+    }
+
+    location = /admin/login {
+        client_max_body_size 64k;
+        include ${SOFTWARE_HUB_ADMIN_ACCESS_FILE};
+        limit_req zone=login_requests burst=5 nodelay;
+        include /etc/software-hub/nginx/snippets/proxy_headers.conf;
+        include /etc/software-hub/nginx/snippets/proxy_timeouts_default.conf;
+        include /etc/software-hub/nginx/snippets/security_headers.conf;
+        proxy_pass $software_hub_app;
+    }
+
+    location ~ ^/admin/releases/[0-9]+/files$ {
+        client_max_body_size 2g;
+        include ${SOFTWARE_HUB_ADMIN_ACCESS_FILE};
+        limit_req zone=general_requests burst=30 nodelay;
+        proxy_request_buffering off;
+        proxy_read_timeout 600s;
+        proxy_send_timeout 600s;
+        include /etc/software-hub/nginx/snippets/proxy_headers.conf;
+        include /etc/software-hub/nginx/snippets/security_headers.conf;
+        proxy_pass $software_hub_app;
+    }
+
+    location /admin/ {
+        client_max_body_size 1m;
+        include ${SOFTWARE_HUB_ADMIN_ACCESS_FILE};
+        limit_req zone=general_requests burst=30 nodelay;
+        include /etc/software-hub/nginx/snippets/proxy_headers.conf;
+        include /etc/software-hub/nginx/snippets/proxy_timeouts_default.conf;
+        include /etc/software-hub/nginx/snippets/security_headers.conf;
+        proxy_pass $software_hub_app;
+    }
+
+    location ^~ /download/ {
+        limit_req zone=download_requests burst=40 nodelay;
+        include /etc/software-hub/nginx/snippets/proxy_headers.conf;
+        include /etc/software-hub/nginx/snippets/proxy_timeouts_default.conf;
+        include /etc/software-hub/nginx/snippets/security_headers.conf;
+        proxy_pass $software_hub_app;
+    }
+
+    location ~* ^/(?:\.env|\.git|backups|config|database|internal|storage)(?:/|$) {
+        include /etc/software-hub/nginx/snippets/security_headers.conf;
+        return 404;
+    }
+
+    location ~ /\. {
+        include /etc/software-hub/nginx/snippets/security_headers.conf;
+        return 404;
+    }
+
+    location / {
+        limit_req zone=general_requests burst=60 nodelay;
+        include /etc/software-hub/nginx/snippets/proxy_headers.conf;
+        include /etc/software-hub/nginx/snippets/proxy_timeouts_default.conf;
+        include /etc/software-hub/nginx/snippets/security_headers.conf;
+        proxy_pass $software_hub_app;
+    }
+}

@@ -1,0 +1,103 @@
+SOFTWARE HUB — PHASE 8 MANIFEST
+================================
+
+Status: COMPLETE
+Date: 2026-07-23
+Scope: server-rendered administration catalog for categories, tags, software and releases
+Database migration: none; Alembic head remains 0002_phase4_domain_schema
+
+NEW FILES
+---------
+app/routers/admin/categories.py
+app/routers/admin/common.py
+app/routers/admin/releases.py
+app/routers/admin/software.py
+app/routers/admin/tags.py
+app/schemas/admin_forms.py
+app/services/dashboard_service.py
+app/static/css/admin.css
+app/templates/admin/base.html
+app/templates/admin/categories/edit.html
+app/templates/admin/categories/list.html
+app/templates/admin/releases/form.html
+app/templates/admin/software/form.html
+app/templates/admin/software/list.html
+app/templates/admin/software/preview.html
+app/templates/admin/tags/edit.html
+app/templates/admin/tags/list.html
+app/templates/components/admin_errors.html
+app/templates/components/admin_pagination.html
+docs/admin-catalog.md
+docs/phase-8-review.md
+tests/integration/admin/test_admin_crud.py
+tests/unit/services/test_normalization_phase8.py
+
+CHANGED FILES
+-------------
+README.md
+app/main.py
+app/routers/admin/__init__.py
+app/routers/admin/dashboard.py
+app/services/audit_service.py
+app/services/category_service.py
+app/services/normalization.py
+app/services/release_service.py
+app/services/software_service.py
+app/services/tag_service.py
+app/templates/admin/dashboard.html
+docs/README.md
+tests/security/test_csrf_route_inventory.py
+
+DELIVERED
+---------
+- shared responsive admin layout and navigation
+- dashboard metadata counters and recent audit events
+- category CRUD with explicit destructive confirmation
+- tag CRUD with explicit destructive confirmation
+- software create/list/filter/edit/preview and lifecycle actions
+- release create/edit/lifecycle/current-stable management
+- deterministic Ukrainian-to-ASCII slug generation
+- HTTP(S)-only URL validation without server-side fetching
+- plain-text descriptions with Jinja autoescape
+- PRG redirects and form-level validation
+- atomic audit logging in the same transaction as catalog mutations
+- CSRF protection on every unsafe route
+- external static CSS compatible with the current CSP
+
+ACCEPTANCE RESULTS
+------------------
+pytest:                         290 passed
+branch-aware coverage:         96.14%
+warnings:                      0
+Python compileall:             passed
+Jinja template compilation:    25 passed
+Alembic upgrade:               passed
+Alembic downgrade/re-upgrade:  passed
+Alembic schema drift:          none
+static CSS smoke:              passed
+health/database smoke:         passed
+TOML parsing:                  passed
+YAML parsing:                  2 files passed
+pyproject/uv.lock alignment:   passed
+uv export --frozen:            passed
+Markdown internal links:       39 passed
+Python lines over 100 chars:   0
+critical application TODOs:    0
+Phase 9 boundary check:        passed
+
+ENVIRONMENT LIMITATIONS
+-----------------------
+- local interpreter: Python 3.13.5
+- target interpreter: Python 3.14
+- Ruff, mypy, Bandit and pip-audit are not available in the sandbox tool cache
+- full Python 3.14 and static/security quality gates remain mandatory in GitHub Actions
+- global pip check reports an unrelated MoviePy/Pillow conflict outside project dependencies
+
+DEFERRED TO LATER PHASES
+------------------------
+- icon and binary-file storage
+- ReleaseFile upload/quarantine
+- public catalog and downloads
+- audit filtering UI
+- full operations dashboard
+- final accessibility and visual polish

@@ -1,0 +1,51 @@
+{% extends "admin/base.html" %}
+{% block title %}Огляд{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">Адміністрування</p><h1>Огляд Software Hub</h1></div>
+  <a class="button" href="/admin/software/new">Додати програму</a>
+</div>
+<section class="stat-grid" aria-label="Основна статистика">
+  <article><strong>{{ snapshot.software_count }}</strong><span>Програм</span></article>
+  <article><strong>{{ snapshot.release_count }}</strong><span>Релізів</span></article>
+  <article><strong>{{ snapshot.file_count }}</strong><span>Файлів</span></article>
+  <article><strong>{{ snapshot.total_downloads }}</strong><span>Завантажень</span></article>
+  <article><strong>{{ snapshot.downloads_today }}</strong><span>Завантажень сьогодні</span></article>
+  <article><strong>{{ snapshot.blocked_today }}</strong><span>Заблоковано сьогодні</span></article>
+  <article><strong>{{ snapshot.quarantine_count }}</strong><span>На перевірці</span></article>
+  <article><strong>{{ snapshot.disabled_count }}</strong><span>Вимкнених файлів</span></article>
+  <article><strong>{{ snapshot.category_count }}</strong><span>Категорій</span></article>
+  <article><strong>{{ snapshot.tag_count }}</strong><span>Тегів</span></article>
+</section>
+<section class="status-grid" aria-label="Стан системи">
+  <article class="status-card">
+    <div class="panel-heading"><h2>База даних</h2><span class="status-pill status-{{ snapshot.system.database.state.value }}">{{ snapshot.system.database.state.value }}</span></div>
+    <p>{{ snapshot.system.database.label }}</p>
+  </article>
+  <article class="status-card">
+    <div class="panel-heading"><h2>Сховище</h2><span class="status-pill status-{{ snapshot.system.storage.state.value }}">{{ snapshot.system.storage.state.value }}</span></div>
+    <p>{{ snapshot.system.storage.label }}</p>
+  </article>
+  <article class="status-card">
+    <div class="panel-heading"><h2>Диск</h2><span class="status-pill status-{{ snapshot.system.disk.state.value }}">{{ snapshot.system.disk.state.value }}</span></div>
+    <p>Вільно {{ snapshot.system.disk.free_display }}; резерв {{ snapshot.system.disk.reserve_display }}.</p>
+    {% if snapshot.system.disk.used_percent is not none %}<p class="hint">Використано {{ snapshot.system.disk.used_percent }}% файлової системи.</p>{% endif %}
+  </article>
+  <article class="status-card">
+    <div class="panel-heading"><h2>Останній backup</h2></div>
+    {% if snapshot.system.backup.available %}
+    <p><time datetime="{{ snapshot.system.backup.last_manifest_at.isoformat() }}">{{ snapshot.system.backup.last_manifest_at.strftime('%Y-%m-%d %H:%M UTC') }}</time></p>
+    {% else %}<p>Підтверджений manifest ще не знайдено.</p>{% endif %}
+  </article>
+</section>
+<section class="panel">
+  <div class="panel-heading"><h2>Останні адміністративні дії</h2><a href="/admin/audit">Відкрити журнал</a></div>
+  {% if snapshot.recent_audit %}
+  <div class="table-wrap" tabindex="0" role="region" aria-label="Останні адміністративні дії"><table><thead><tr><th scope="col">Час</th><th scope="col">Дія</th><th scope="col">Сутність</th><th scope="col">Результат</th></tr></thead><tbody>
+    {% for event in snapshot.recent_audit %}
+    <tr><td>{{ event.timestamp.strftime('%Y-%m-%d %H:%M') }}</td><td><code>{{ event.action }}</code></td><td>{{ event.entity_type or '—' }}{% if event.entity_id %} #{{ event.entity_id }}{% endif %}</td><td><span class="status-pill status-{{ event.result }}">{{ event.result }}</span></td></tr>
+    {% endfor %}
+  </tbody></table></div>
+  {% else %}<p class="empty-state">Адміністративних подій ще немає.</p>{% endif %}
+</section>
+{% endblock %}

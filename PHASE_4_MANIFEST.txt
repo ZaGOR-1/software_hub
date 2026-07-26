@@ -1,0 +1,88 @@
+Software Hub — Phase 4 manifest
+Generated: 2026-07-23
+
+Scope:
+- complete MVP SQLAlchemy domain model
+- relationships, named constraints and indexes
+- Alembic production schema revision
+- schema-drift validation
+- model fixtures and integration tests
+- data-model documentation
+
+Target runtime: Python >=3.14,<3.15
+Local validation runtime: Python 3.13.5
+SQLAlchemy: 2.0.50
+Alembic: 1.18.4
+Migration head: 0002_phase4_domain_schema
+
+PHASE 4 FINAL VALIDATION
+
+[1] compileall
+PASS: app, tests and alembic compile successfully
+
+[2] pytest and coverage
+108 passed
+Branch-aware coverage: 98.69%
+Coverage threshold: 90%
+
+[3] model/schema coverage
+PASS: 10 domain tables plus alembic_version
+PASS: User and server-side UserSession
+PASS: Category, Tag and software_tags
+PASS: Software -> Release -> ReleaseFile
+PASS: DownloadStat and AuditLog
+PASS: typed enum and UUID round trips
+PASS: UTC-aware timestamp round trips
+
+[4] constraints and delete behavior
+PASS: unique username/category/tag/software slugs
+PASS: unique session token hash
+PASS: unique release version/channel per software
+PASS: one current stable release per software
+PASS: unique public UUID and internal storage paths
+PASS: unique daily stat per file/date
+PASS: SHA-256 length and non-negative counter checks
+PASS: category SET NULL behavior
+PASS: user session cascade and audit preservation
+PASS: software/release/file/stat metadata cascades
+
+[5] Alembic migration chain
+PASS: clean upgrade to head
+PASS: current reports 0002_phase4_domain_schema
+PASS: alembic check reports no schema drift
+PASS: downgrade to 0001_phase3_baseline
+PASS: re-upgrade to head
+
+[6] configuration and lock graph
+PASS: pyproject.toml parsed
+PASS: GitHub Actions and pre-commit YAML parsed
+PASS: 45 locked packages
+PASS: dependency closure complete
+PASS: no Phase 4 dependency change; uv.lock unchanged
+
+[7] source hygiene
+PASS: no trailing whitespace in Python sources
+PASS: app/tests Python lines <= 100 characters
+PASS: changed Markdown has no accidental trailing whitespace
+Generated Alembic version files are excluded from Ruff formatting and are
+validated through compile, migration and schema-drift tests.
+
+[8] ASGI readiness smoke
+PASS: real Uvicorn process returned:
+{'status': 'ok', 'service': 'software-hub', 'version': '0.1.0', 'checks': {'database': 'ok'}}
+
+[9] environment limitations
+- Python 3.14 is not installed in the sandbox.
+- Network access is unavailable, so uv sync, Ruff, mypy, Bandit and pip-audit
+  remain mandatory network-enabled GitHub Actions checks.
+- `python -m pip check` on the shared sandbox reports an unrelated global
+  MoviePy/Pillow conflict. Software Hub does not depend on either package and a
+  clean locked project environment is required for the authoritative check.
+
+[10] scope guard
+PASS: repositories, Pydantic domain schemas and Phase 5 business services were
+not implemented.
+
+[11] packaging
+PASS: source tree cleaned of caches, coverage files and runtime databases
+PASS: ZIP integrity verified after creation

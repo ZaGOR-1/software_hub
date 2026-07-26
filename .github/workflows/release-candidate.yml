@@ -1,0 +1,194 @@
+name: Release Candidate Evidence
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*-rc.*"
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+
+env:
+  UV_FROZEN: "1"
+
+jobs:
+  evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.10.0"
+          enable-cache: true
+
+      - name: Install Python
+        run: uv python install 3.14
+
+      - name: Synchronize locked environment
+        run: uv sync --all-groups --locked
+
+      - name: Verify release-candidate documents and invariants
+        run: uv run pytest -o addopts="" tests/infrastructure/test_release_candidate_phase19.py -q
+
+      - name: Run migration, administrator, backup and restore rehearsal
+        env:
+          PYTHON: ${{ github.workspace }}/.venv/bin/python
+        run: |
+          mkdir -p test-results/release-candidate
+          ./scripts/rehearse-release-candidate.sh \
+            | tee test-results/release-candidate/rehearsal.json
+
+      - name: Build release-candidate source artifact
+        id: package
+        run: |
+          version=$(uv run python -c 'from app import __version__; print(__version__)')
+          archive="software-hub-${version}.tar.gz"
+          archive_path="test-results/release-candidate/${archive}"
+          checksum_path="${archive_path}.sha256"
+
+          test "${GITHUB_REF_TYPE}" = "tag"
+          test "${GITHUB_REF_NAME}" = "v${version}"
+          test "$(git rev-list -n 1 "${GITHUB_REF_NAME}")" = "${GITHUB_SHA}"
+
+          git archive \
+            --format=tar \
+            --prefix="software-hub-${version}/" \
+            "${GITHUB_SHA}" \
+            | gzip -n > "${archive_path}"
+          (
+            cd test-results/release-candidate
+            sha256sum "${archive}" > "${archive}.sha256"
+          )
+
+          {
+            echo "version=${version}"
+            echo "archive_path=${archive_path}"
+            echo "checksum_path=${checksum_path}"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Create machine-readable release evidence manifest
+        env:
+          RELEASE_VERSION: ${{ steps.package.outputs.version }}
+          ARCHIVE_PATH: ${{ steps.package.outputs.archive_path }}
+          CHECKSUM_PATH: ${{ steps.package.outputs.checksum_path }}
+          EVIDENCE_MANIFEST_PATH: test-results/release-candidate/evidence-manifest.json
+        run: |
+          uv run python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          archive = Path(os.environ["ARCHIVE_PATH"])
+          checksum = Path(os.environ["CHECKSUM_PATH"])
+          manifest_path = Path(os.environ["EVIDENCE_MANIFEST_PATH"])
+          archive_sha256 = hashlib.file_digest(archive.open("rb"), "sha256").hexdigest()
+          recorded_sha256 = checksum.read_text(encoding="utf-8").split()[0]
+          if archive_sha256 != recorded_sha256:
+              raise SystemExit("release archive checksum verification failed")
+
+          repository = os.environ["GITHUB_REPOSITORY"]
+          run_id = os.environ["GITHUB_RUN_ID"]
+          manifest = {
+              "schema": "software-hub.release-evidence/v1",
+              "release": {
+                  "version": os.environ["RELEASE_VERSION"],
+                  "tag": os.environ["GITHUB_REF_NAME"],
+                  "commit_sha": os.environ["GITHUB_SHA"],
+              },
+              "source": {
+                  "repository": repository,
+                  "ref": os.environ["GITHUB_REF"],
+                  "workflow_ref": os.environ["GITHUB_WORKFLOW_REF"],
+                  "workflow_sha": os.environ["GITHUB_WORKFLOW_SHA"],
+              },
+              "ci": {
+                  "run_id": int(run_id),
+                  "run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+                  "run_url": (
+                      f"{os.environ['GITHUB_SERVER_URL']}/{repository}/actions/runs/{run_id}"
+                  ),
+                  "runner_environment": os.environ["RUNNER_ENVIRONMENT"],
+                  "runner_os": os.environ["RUNNER_OS"],
+                  "runner_arch": os.environ["RUNNER_ARCH"],
+              },
+              "artifact": {
+                  "name": archive.name,
+                  "sha256": archive_sha256,
+                  "checksum_file": checksum.name,
+              },
+          }
+          manifest_path.write_text(
+              json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+          (
+            cd test-results/release-candidate
+            sha256sum evidence-manifest.json > evidence-manifest.json.sha256
+          )
+
+      - name: Sign build provenance for release evidence
+        id: attest
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
+        with:
+          subject-path: |
+            ${{ steps.package.outputs.archive_path }}
+            ${{ steps.package.outputs.checksum_path }}
+            test-results/release-candidate/evidence-manifest.json
+            test-results/release-candidate/evidence-manifest.json.sha256
+            test-results/release-candidate/rehearsal.json
+
+      - name: Persist signed provenance bundle and reference
+        env:
+          ATTESTATION_ID: ${{ steps.attest.outputs.attestation-id }}
+          ATTESTATION_URL: ${{ steps.attest.outputs.attestation-url }}
+          ATTESTATION_BUNDLE_PATH: ${{ steps.attest.outputs.bundle-path }}
+        run: |
+          test -n "${ATTESTATION_ID}"
+          test -n "${ATTESTATION_URL}"
+          test -s "${ATTESTATION_BUNDLE_PATH}"
+          cp "${ATTESTATION_BUNDLE_PATH}" \
+            test-results/release-candidate/provenance.sigstore.json
+          uv run python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          reference = {
+              "schema": "software-hub.attestation-reference/v1",
+              "attestation_id": os.environ["ATTESTATION_ID"],
+              "attestation_url": os.environ["ATTESTATION_URL"],
+              "bundle_file": "provenance.sigstore.json",
+          }
+          Path("test-results/release-candidate/attestation-reference.json").write_text(
+              json.dumps(reference, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+          (
+            cd test-results/release-candidate
+            sha256sum provenance.sigstore.json > provenance.sigstore.json.sha256
+            sha256sum attestation-reference.json > attestation-reference.json.sha256
+          )
+
+      - name: Upload release-candidate evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: software-hub-release-candidate-${{ github.sha }}-${{ github.run_attempt }}
+          path: test-results/release-candidate
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 0

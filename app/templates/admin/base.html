@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}Адміністрування{% endblock %} — Software Hub</title>
+  <link rel="icon" href="/static/icons/favicon.svg" type="image/svg+xml">
+  <script src="/static/js/theme-bootstrap.js"></script>
+  <link rel="stylesheet" href="/static/css/theme.css">
+  <link rel="stylesheet" href="/static/css/admin.css">
+  <script src="/static/js/theme.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Перейти до вмісту</a>
+  <header class="admin-header">
+    <div class="brand"><a href="/admin">Software Hub</a></div>
+    <nav aria-label="Адміністративна навігація">
+      <a href="/admin"{% if current_path == '/admin' %} aria-current="page"{% endif %}>Огляд</a>
+      <a href="/admin/software"{% if current_path.startswith('/admin/software') or current_path.startswith('/admin/releases') or current_path.startswith('/admin/files') %} aria-current="page"{% endif %}>Програми</a>
+      <a href="/admin/categories"{% if current_path.startswith('/admin/categories') %} aria-current="page"{% endif %}>Категорії</a>
+      <a href="/admin/tags"{% if current_path.startswith('/admin/tags') %} aria-current="page"{% endif %}>Теги</a>
+      <a href="/admin/audit"{% if current_path.startswith('/admin/audit') %} aria-current="page"{% endif %}>Аудит</a>
+      <a href="/">Публічний сайт</a>
+    </nav>
+    <div class="admin-account">
+      <button class="theme-toggle" type="button" data-theme-toggle hidden>
+        <span class="theme-toggle-icon" data-theme-icon aria-hidden="true">◐</span>
+        <span class="theme-toggle-label" data-theme-label>Системна тема</span>
+      </button>
+      <span class="admin-username">{{ admin_user.username }}</span>
+      <form method="post" action="/admin/logout">
+        {% include "components/csrf.html" %}
+        <button class="button button-secondary" type="submit">Вийти</button>
+      </form>
+    </div>
+  </header>
+  <main id="main-content" class="admin-main" tabindex="-1">
+    {% if notice %}<div class="notice" role="status" aria-live="polite">{{ notice }}</div>{% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

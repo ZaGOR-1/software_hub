@@ -1,0 +1,112 @@
+Software Hub — Phase 7 manifest
+Generated: 2026-07-23
+
+Scope:
+- signed pre-authentication CSRF context for administrator login
+- per-session synchronizer tokens for authenticated administrator forms
+- bounded token lifetime, strict parsing and constant-time HMAC comparison
+- reusable FastAPI CSRF dependencies for current and future admin routes
+- header-first validation for future streaming upload requests
+- shared hidden-field Jinja component
+- CSRF-safe login failure rerender and cookie rotation
+- CSRF-protected logout
+- cross-browser, cross-session, rotation and expiration security tests
+- CSRF documentation and configuration reference
+
+Target runtime: Python >=3.14,<3.15
+Local validation runtime: Python 3.13.5
+Migration head: 0002_phase4_domain_schema
+Schema changes in Phase 7: none
+New runtime dependencies: none
+
+PHASE 7 FINAL VALIDATION
+
+[1] compile and test suite
+PASS: app, tests and Alembic modules compile
+PASS: 283 tests
+PASS: 98.36% branch-aware coverage
+PASS: 0 warnings
+PASS: coverage threshold 90%
+
+[2] token cryptography
+PASS: 32-byte random nonce generation
+PASS: HMAC-SHA256 signature
+PASS: purpose-separated login and session token payloads
+PASS: issued-at and bounded lifetime validation
+PASS: excessive future timestamp rejection
+PASS: strict URL-safe token format
+PASS: configured maximum token length
+PASS: constant-time nonce and MAC comparison
+PASS: malformed session key fails closed
+
+[3] login CSRF
+PASS: GET /admin/login emits hidden token
+PASS: HttpOnly context cookie
+PASS: SameSite=Strict
+PASS: Path=/admin/login
+PASS: Secure in production
+PASS: default 10-minute context lifetime
+PASS: missing cookie rejected
+PASS: missing/malformed/tampered token rejected
+PASS: cross-browser token rejected
+PASS: invalid CSRF does not increment login counter
+PASS: failed credentials rotate login token/context
+PASS: successful login deletes context cookie
+
+[4] authenticated session CSRF
+PASS: token derived from session-specific CSRF key
+PASS: hidden token rendered on protected admin page
+PASS: POST /admin/logout requires CSRFProtectedAdminSession
+PASS: missing token rejected without revocation
+PASS: invalid token rejected without revocation
+PASS: cross-session token rejected
+PASS: old token rejected after session rotation
+PASS: expired/revoked session rejected independently
+PASS: default token lifetime two hours
+PASS: token lifetime cannot exceed absolute session lifetime
+
+[5] error, privacy and logging
+PASS: stable csrf_error public code
+PASS: HTTP 403 for invalid token
+PASS: HTML and JSON safe error responses
+PASS: submitted token never echoed
+PASS: submitted token never logged
+PASS: safe failure reason only
+PASS: Cache-Control no-store
+PASS: no token in URL
+PASS: raw token not stored in SQLite or audit metadata
+
+[6] application integration
+PASS: LoginCSRFProtection dependency
+PASS: CSRFProtectedAdminSession dependency
+PASS: common Jinja hidden-field component
+PASS: configurable X-CSRF-Token header transport
+PASS: header checked before form parsing
+PASS: automatic unsafe-route inventory test
+PASS: current POST routes enumerated and protected
+PASS: GET routes remain available without CSRF
+PASS: no Phase 8 CRUD added
+PASS: no schema migration required
+PASS: Alembic schema drift absent
+
+[7] source and documentation hygiene
+PASS: .env.example updated
+PASS: README updated
+PASS: documentation index updated
+PASS: authentication/session guide updated
+PASS: technical decisions updated
+PASS: threat model T04 implementation status updated
+PASS: dedicated CSRF architecture document
+PASS: Phase 7 completion review
+
+[8] environment limitations
+- Python 3.14 is not installed in the execution sandbox.
+- Ruff, mypy, Bandit and pip-audit executables are unavailable locally.
+- uv cannot download the configured Python 3.14 runtime because network access
+  is unavailable.
+- These checks remain mandatory in GitHub Actions with the committed lock file.
+
+[9] packaging
+PASS: generated caches, coverage output and runtime databases excluded
+PASS: ZIP integrity verified after creation
+PASS: SHA-256 checksum generated

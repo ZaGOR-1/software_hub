@@ -1,0 +1,53 @@
+services:
+  app:
+    restart: always
+    environment:
+      SOFTWARE_HUB_APP_ENVIRONMENT: production
+      SOFTWARE_HUB_APP_DEBUG: "false"
+      SOFTWARE_HUB_DOCS_ENABLED: "false"
+      SOFTWARE_HUB_SECURITY_HEADERS_ENABLED: "false"
+
+  nginx:
+    restart: always
+    environment:
+      SOFTWARE_HUB_NGINX_MODE: production
+      SOFTWARE_HUB_DOMAIN: ${SOFTWARE_HUB_DOMAIN:?Set SOFTWARE_HUB_DOMAIN}
+      SOFTWARE_HUB_TLS_CERTIFICATE: /etc/letsencrypt/live/${SOFTWARE_HUB_DOMAIN}/fullchain.pem
+      SOFTWARE_HUB_TLS_CERTIFICATE_KEY: /etc/letsencrypt/live/${SOFTWARE_HUB_DOMAIN}/privkey.pem
+    ports:
+      - "${SOFTWARE_HUB_HTTPS_BIND:-0.0.0.0}:${SOFTWARE_HUB_HTTPS_PORT:-443}:8443"
+    volumes:
+      - type: bind
+        source: ${SOFTWARE_HUB_DATA_ROOT:-/srv/software-hub}/letsencrypt
+        target: /etc/letsencrypt
+        read_only: true
+
+  certbot:
+    image: certbot/certbot:v5.7.0
+    profiles:
+      - certbot
+    user: "${SOFTWARE_HUB_UID:-10001}:${SOFTWARE_HUB_GID:-10001}"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    entrypoint:
+      - certbot
+    volumes:
+      - type: bind
+        source: ${SOFTWARE_HUB_DATA_ROOT:-/srv/software-hub}/letsencrypt
+        target: /etc/letsencrypt
+      - type: bind
+        source: ${SOFTWARE_HUB_DATA_ROOT:-/srv/software-hub}/certbot/www
+        target: /var/www/certbot
+      - type: bind
+        source: ${SOFTWARE_HUB_DATA_ROOT:-/srv/software-hub}/certbot/logs
+        target: /var/log/letsencrypt
+      - type: bind
+        source: ${SOFTWARE_HUB_DATA_ROOT:-/srv/software-hub}/certbot/lib
+        target: /var/lib/letsencrypt
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=64m,mode=1770,uid=${SOFTWARE_HUB_UID:-10001},gid=${SOFTWARE_HUB_GID:-10001}
+    networks:
+      - frontend

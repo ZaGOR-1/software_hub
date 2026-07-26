@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master, main]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  UV_FROZEN: "1"
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.10.0"
+          enable-cache: true
+
+      - name: Install Python
+        run: uv python install 3.14
+
+      - name: Validate committed lock file
+        run: uv lock --check
+
+      - name: Synchronize environment
+        run: uv sync --all-groups --locked
+
+      - name: Create test-results directory
+        run: mkdir -p test-results/quality
+
+      - name: Verify frozen runtime export
+        run: uv export --frozen --no-dev --output-file test-results/quality/requirements.txt
+
+      - name: Pre-commit
+        run: uv run pre-commit run --all-files
+
+      - name: Ruff format check
+        run: uv run ruff format --check .
+
+      - name: Ruff lint
+        run: uv run ruff check --output-format=github .
+
+      - name: Mypy
+        run: uv run mypy --junit-xml test-results/quality/mypy.xml
+
+      - name: Pytest with coverage
+        run: uv run pytest --junitxml=test-results/quality/pytest.xml
+
+      - name: Bandit
+        run: uvx --from "bandit[toml]==1.9.4" bandit -c pyproject.toml -r app
+
+      - name: Dependency audit
+        run: |
+          uvx --from "pip-audit==2.10.1" pip-audit \
+            --requirement test-results/quality/requirements.txt \
+            --format json \
+            --output test-results/quality/pip-audit.json
+
+      - name: Upload quality artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: python-quality-${{ github.run_id }}
+          path: |
+            test-results/quality
+            coverage.xml
+          if-no-files-found: ignore
+          retention-days: 14

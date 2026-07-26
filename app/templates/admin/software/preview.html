@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ software.name }}{% endblock %}
+{% block content %}
+<div class="page-heading"><div><a class="back-link" href="/admin/software">← Програми</a><p class="eyebrow">Admin preview</p><h1>{{ software.name }}</h1><p>{{ software.short_description }}</p></div><div class="button-row"><a class="button button-secondary" href="/admin/software/{{ software.id }}/edit">Редагувати</a><a class="button" href="/admin/software/{{ software.id }}/releases/new">Новий реліз</a></div></div>
+<section class="panel metadata-grid">
+  <div><span>Slug</span><code>{{ software.slug }}</code></div><div><span>Статус</span><strong>{{ software.status.value }}</strong></div><div><span>Видимість</span><strong>{{ software.visibility.value }}</strong></div><div><span>Категорія</span><strong>{{ software.category.name if software.category else '—' }}</strong></div><div><span>Розробник</span><strong>{{ software.developer_name or '—' }}</strong></div><div><span>Ліцензія</span><strong>{{ software.license_name or '—' }}</strong></div>
+</section>
+<section class="panel">
+  <div class="panel-heading"><h2>Керування статусом</h2></div>
+  <div class="button-row">
+    {% if software.status.value in ['draft', 'hidden', 'archived'] %}<form method="post" action="/admin/software/{{ software.id }}/publish">{% include "components/csrf.html" %}<button class="button" type="submit">Опублікувати</button></form>{% endif %}
+    {% if software.status.value in ['draft', 'published', 'archived'] %}<form method="post" action="/admin/software/{{ software.id }}/hide">{% include "components/csrf.html" %}<button class="button button-secondary" type="submit">Приховати</button></form>{% endif %}
+    {% if software.status.value in ['published', 'hidden'] %}<form method="post" action="/admin/software/{{ software.id }}/archive">{% include "components/csrf.html" %}<button class="button button-secondary" type="submit">Архівувати</button></form>{% endif %}
+    {% if software.status.value != 'disabled' %}<form method="post" action="/admin/software/{{ software.id }}/disable">{% include "components/csrf.html" %}<button class="button button-danger" type="submit">Вимкнути</button></form>{% endif %}
+    {% if software.status.value == 'disabled' %}<form method="post" action="/admin/software/{{ software.id }}/restore">{% include "components/csrf.html" %}<button class="button" type="submit">Повернути в чернетки</button></form>{% endif %}
+  </div>
+</section>
+<section class="panel">
+  <div class="panel-heading"><h2>Релізи</h2><span>{{ software.releases|length }}</span></div>
+  {% if software.releases %}<div class="table-wrap" tabindex="0" role="region" aria-label="Релізи програми"><table><thead><tr><th scope="col">Версія</th><th scope="col">Канал</th><th scope="col">Статус</th><th scope="col">Дата</th><th scope="col">Поточний</th><th scope="col"></th></tr></thead><tbody>
+  {% for release in software.releases %}<tr><td><strong>{{ release.version }}</strong></td><td>{{ release.release_channel.value }}</td><td><span class="badge">{{ release.status.value }}</span></td><td>{{ release.release_date or '—' }}</td><td>{{ 'Так' if release.is_current else 'Ні' }}</td><td><a href="/admin/releases/{{ release.id }}/edit">Редагувати</a></td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<p class="empty-state">Релізів ще немає.</p>{% endif %}
+</section>
+{% if software.full_description %}<section class="panel prose"><h2>Опис</h2><p class="pre-wrap">{{ software.full_description }}</p></section>{% endif %}
+{% endblock %}

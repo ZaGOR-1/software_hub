@@ -1,0 +1,92 @@
+Software Hub — Phase 5 manifest
+Generated: 2026-07-23
+
+Scope:
+- session-bound repository layer for all Phase 4 models
+- bounded generic pagination
+- normalized and parameterized software search
+- category, tag, status and visibility filters
+- application services with short transaction boundaries
+- lifecycle and visibility policies
+- atomic current stable release replacement
+- duplicate SHA-256 lookup
+- repository, policy and service tests
+- application-layer documentation
+
+Target runtime: Python >=3.14,<3.15
+Local validation runtime: Python 3.13.5
+Migration head: 0002_phase4_domain_schema
+Schema changes in Phase 5: none
+
+PHASE 5 FINAL VALIDATION
+
+[1] compileall
+PASS: app, tests and alembic compile successfully
+
+[2] pytest and coverage
+233 passed
+Branch-aware coverage: 98.61%
+Coverage threshold: 90%
+Warnings: 0
+
+[3] repository layer
+PASS: repositories accept an existing SQLAlchemy Session
+PASS: repositories do not commit or roll back
+PASS: repositories use SQLAlchemy expressions and bound parameters
+PASS: generic one-based pagination is bounded to 100 records per page
+PASS: eager relationship loading avoids N+1 access in catalog results
+PASS: repositories exist for all ten Phase 4 domain models
+
+[4] search and filtering
+PASS: whitespace normalization
+PASS: query length validation from 2 through 100 characters
+PASS: literal escaping of %, _ and backslash in LIKE patterns
+PASS: name, description, developer, category and tag search
+PASS: category, tag, status and visibility filters
+PASS: name, updated-time and popularity sorting
+PASS: SQL-injection-like input is handled as data
+
+[5] domain policies
+PASS: every Software transition pair is tested
+PASS: every Release transition pair is tested
+PASS: every ReleaseFile transition pair is tested
+PASS: invalid state transitions raise typed application exceptions
+PASS: public-listing, direct-page and download policies cover the full parent chain
+PASS: publishing timestamps and disable/archive timestamps are maintained
+
+[6] transaction behavior
+PASS: write services own short transaction boundaries
+PASS: invalid transitions roll back
+PASS: current stable release replacement is atomic
+PASS: Phase 4 partial unique index remains the database-level final guard
+PASS: duplicate SHA-256 lookup uses the indexed metadata field
+
+[7] Alembic and schema consistency
+PASS: clean upgrade to head
+PASS: current reports 0002_phase4_domain_schema
+PASS: alembic check reports no schema drift
+PASS: no new migration is required for Phase 5
+
+[8] architecture and source hygiene
+PASS: no FastAPI or Starlette imports in repositories, services or schemas
+PASS: no direct session.commit() in repositories or services
+PASS: no raw user-controlled SQL fragments
+PASS: no critical TODO, placeholder logic or bare pass
+PASS: app/tests Python lines are within the configured limit
+PASS: TOML and YAML configuration parse successfully
+
+[9] environment limitations
+- Python 3.14 is not installed in the sandbox.
+- Network access/package registry availability prevents an authoritative local
+  uv sync, Ruff, mypy, Bandit and pip-audit run.
+- Those checks remain mandatory in the existing GitHub Actions workflow using
+  the committed pyproject.toml and uv.lock.
+- Functional validation was completed with Python 3.13.5.
+
+[10] scope guard
+PASS: no authentication, CSRF, HTTP CRUD routes, templates, storage upload or
+physical file operations were added.
+
+[11] packaging
+PASS: source tree cleaned of caches, coverage files and runtime databases
+PASS: ZIP integrity verified after creation

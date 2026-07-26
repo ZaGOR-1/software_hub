@@ -1,0 +1,106 @@
+SOFTWARE HUB — PHASE 11 MANIFEST
+================================
+
+Scope
+-----
+Operator-controlled release-file lifecycle:
+- manual quarantine review;
+- physical integrity verification;
+- compensated quarantine-to-software publication;
+- disable/archive/restore;
+- metadata-only deletion with explicit orphan semantics;
+- staging-based permanent deletion with DB-failure restoration.
+
+Application modules added
+-------------------------
+app/storage/lifecycle.py
+
+Application modules extended
+----------------------------
+app/services/audit_service.py
+app/services/file_service.py
+app/services/policies.py
+app/routers/admin/common.py
+app/routers/admin/files.py
+app/templates/admin/files/detail.html
+
+Tests added or extended
+-----------------------
+tests/conftest.py
+tests/integration/files/test_file_lifecycle_phase11.py
+tests/integration/files/test_file_lifecycle_routes_phase11.py
+tests/security/test_csrf_route_inventory.py
+
+Documentation
+-------------
+docs/file-lifecycle.md
+docs/phase-11-review.md
+docs/threat-model.md
+docs/release-checklist.md
+docs/README.md
+README.md
+
+Database
+--------
+No schema migration required.
+Alembic head: 0002_phase4_domain_schema
+
+Verification
+------------
+pytest:                          407 passed
+branch-aware coverage:          94.04%
+warnings:                       0
+Python compileall:              passed
+strict annotation inventory:    passed
+Python lines over 100 chars:     0
+CSRF unsafe-route inventory:     passed
+publish checksum/tamper guard:   passed
+publish DB rollback restore:     passed
+duplicate physical roots:        fail-closed passed
+infected approval prevention:    passed
+disable/archive/restore:         passed
+metadata-only orphan policy:     passed
+permanent deletion:              passed
+permanent-delete DB restore:     passed
+final unlink failure handling:   passed
+Alembic upgrade/check:           passed
+Alembic downgrade/re-upgrade:    passed
+Alembic schema drift:            none
+Jinja templates compiled:        27
+TOML parsing:                    passed
+GitHub Actions YAML parsing:     passed (1 file)
+uv export --frozen --no-dev:     passed
+Markdown internal links:         passed (49)
+Uvicorn lifecycle smoke:         passed
+published file mode:             0640
+ZIP integrity:                   passed (post-package validation)
+SHA-256 sidecar:                 created and verified
+
+Key lifecycle guarantees
+------------------------
+- A file cannot publish unless its parents are eligible and persisted signature,
+  scanner state, physical size and SHA-256 all pass.
+- Filesystem moves precede short DB transactions and are compensated on failure.
+- Disable/archive never remove bytes.
+- Published files must be disabled or archived before deletion.
+- Metadata-only deletion explicitly preserves an orphan for reconciliation.
+- Permanent deletion stages bytes privately before metadata commit and restores
+  them when the DB transaction fails.
+- A post-commit unlink failure leaves a private artifact and raises an
+  operator-visible critical storage error instead of hiding data loss.
+
+Environment note
+----------------
+Local execution used Python 3.13.5. The project target remains Python 3.14.
+Ruff, mypy, Bandit and pip-audit were unavailable in the offline sandbox and
+remain mandatory GitHub Actions quality gates.
+
+Deferred
+--------
+- public UUID download route;
+- complete Software -> Release -> ReleaseFile download authorization chain;
+- download counters and HEAD semantics;
+- Nginx internal protected-download location;
+- X-Accel-Redirect and range/resume behavior;
+- reconciliation and operator cleanup commands;
+- backup/restore and production container configuration.

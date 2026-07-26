@@ -1,0 +1,7 @@
+{% if page.pages > 1 %}
+<nav class="pagination" aria-label="Сторінки">
+  {% if page.has_previous %}<a href="?page={{ page.page - 1 }}">← Попередня</a>{% endif %}
+  <span>Сторінка {{ page.page }} з {{ page.pages }}</span>
+  {% if page.has_next %}<a href="?page={{ page.page + 1 }}">Наступна →</a>{% endif %}
+</nav>
+{% endif %}

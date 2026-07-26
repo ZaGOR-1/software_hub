@@ -1,0 +1,86 @@
+SOFTWARE HUB — PHASE 19 MANIFEST
+================================
+
+Version: 1.0.0-rc.1
+Phase: documentation, deployment rehearsal and release candidate
+Status: completed as code-level RC
+Date: 2026-07-26
+
+CREATED
+-------
+ARCHITECTURE.md
+CHANGELOG.md
+docs/environment-variables.md
+docs/local-development.md
+docs/production-acceptance.md
+docs/release-candidate.md
+docs/phase-19-review.md
+scripts/rehearse-release-candidate.sh
+scripts/verify-release-candidate.sh
+tests/infrastructure/test_release_candidate_phase19.py
+.github/workflows/release-candidate.yml
+PHASE_19_MANIFEST.txt
+
+UPDATED
+-------
+README.md
+SECURITY.md
+DEPLOYMENT.md
+BACKUP_RESTORE.md
+OPERATIONS.md
+docs/README.md
+docs/threat-model.md
+docs/release-checklist.md
+docs/database-foundation.md
+docs/operations-observability.md
+.env.example
+.env.production.example
+pyproject.toml
+uv.lock
+app/__init__.py
+.github/workflows/ci.yml
+.github/workflows/e2e.yml
+.github/workflows/container-build.yml
+
+VERSION
+-------
+app.__version__: 1.0.0-rc.1
+pyproject project.version: 1.0.0-rc.1
+uv.lock root package: 1.0.0-rc.1
+CHANGELOG release: 1.0.0-rc.1
+
+LOCAL ACCEPTANCE
+----------------
+PASS: 503 regression tests
+PASS: 10 opt-in E2E tests skipped by default
+PASS: 92.82% branch-aware coverage
+PASS: 90% coverage threshold
+PASS: zero warnings
+PASS: Phase 19 version/document/dependency invariants
+PASS: clean migration upgrade
+PASS: downgrade to base and re-upgrade
+PASS: schema drift check
+PASS: CLI administrator bootstrap
+PASS: online backup and manifest verification
+PASS: deliberate mutation and restore
+PASS: storage reconciliation
+PASS: real Uvicorn health request
+PASS: Python compileall
+PASS: shell syntax
+PASS: TOML/YAML parsing
+PASS: 36 Jinja templates compiled
+PASS: 121 internal Markdown links
+PASS: theme JavaScript runtime
+
+CI-ONLY BLOCKING ACCEPTANCE
+---------------------------
+PENDING ON TAG: Python 3.14 uv lock/sync/export
+PENDING ON TAG: pre-commit, Ruff and strict mypy
+PENDING ON TAG: Bandit and pip-audit
+PENDING ON TAG: Chromium/Firefox/WebKit and axe-core
+PENDING ON TAG: Docker builds, Trivy and Compose runtime smoke
+
+BOUNDARY
+--------
+Phase 19 produces a release candidate only.
+Real DNS, TLS, firewall, VPN/IP allowlist, offsite restore and public launch are Phase 20.

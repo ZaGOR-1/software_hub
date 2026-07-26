@@ -1,0 +1,79 @@
+SOFTWARE HUB — PHASE 12 MANIFEST
+Generated: 2026-07-24
+Scope: Protected GET/HEAD downloads through FastAPI authorization and Nginx X-Accel-Redirect
+
+IMPLEMENTED
+- Public GET /download/{public_uuid}/{safe_filename}
+- Public HEAD /download/{public_uuid}/{safe_filename}
+- Exact display-filename verification
+- Full Software -> Release -> ReleaseFile status/visibility authorization
+- Administrator session support for private downloads
+- Public and unlisted direct-link behavior
+- Permanent-storage and physical-size validation
+- Safe Content-Disposition, media type, ETag and cache headers
+- Empty ASGI upstream response with X-Accel-Redirect
+- UTC daily successful and blocked aggregate accounting
+- Nginx internal alias for permanent software storage
+- Direct internal URI denial
+- Nginx byte range/resume handling
+- Dedicated Nginx download request-rate zone
+- Root-scoped administrator cookie required for private /download authorization
+
+AUTOMATED ACCEPTANCE
+- pytest: 428 passed
+- branch coverage: 93.99%
+- warnings: 0
+- Python compileall: passed
+- Python function annotations audit: passed
+- Python source lines over 100 chars: 0
+- Jinja templates compiled: 27
+- Alembic upgrade/check: passed
+- Alembic downgrade/re-upgrade: passed
+- Alembic schema drift: absent
+- migration head: 0002_phase4_domain_schema
+- TOML/YAML parsing: passed
+- pyproject/uv.lock runtime metadata alignment: passed
+- uv export --frozen --no-dev: passed
+- internal Markdown links: 54 passed
+- committed Nginx configuration syntax: passed
+
+REAL UVICORN -> NGINX ACCEPTANCE
+- direct /protected-downloads URI: 404
+- full GET: 200
+- full file Content-Length: 36
+- full response bytes: exact match
+- Range bytes=5-9: 206
+- range body: 56789
+- HEAD: 200
+- HEAD Content-Length: 36
+- database counters after two GETs and one HEAD: 2 / 2 / 2 / 0
+
+DATABASE
+- No migration added in Phase 12
+- Existing DownloadStat schema used
+- GET means authorized download start, not confirmed completion
+- HEAD never increments total/successful counters
+- Known policy denials increment only daily blocked counter
+
+SECURITY NOTES
+- Public UUID is not treated as authorization
+- Physical path never comes from request input
+- Generic 404 prevents lifecycle/visibility enumeration
+- Quarantine and temporary locations are never eligible
+- FastAPI never streams the file body
+- Nginx internal location is not directly addressable
+- Private download cookie remains opaque, HttpOnly, SameSite=Lax and Secure in production
+
+ENVIRONMENT LIMITATION
+- Local runtime: Python 3.13.5
+- Target runtime: Python 3.14
+- Ruff, mypy, Bandit and pip-audit were unavailable in the offline sandbox
+- GitHub Actions remains the mandatory Python 3.14 quality/security gate
+
+PRIMARY DOCUMENTATION
+- docs/download-delivery.md
+- docs/phase-12-review.md
+- docs/threat-model.md
+- docs/release-checklist.md
+- docs/ADR/0003-server-side-sessions.md
+- docs/ADR/0004-x-accel-redirect.md

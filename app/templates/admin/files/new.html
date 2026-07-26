@@ -1,0 +1,44 @@
+{% extends "admin/base.html" %}
+{% block title %}Завантаження файла{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <a class="back-link" href="/admin/releases/{{ release.id }}/edit">← Реліз {{ release.version }}</a>
+    <p class="eyebrow">Quarantine upload</p>
+    <h1>Новий файл релізу</h1>
+    <p>{{ software.name }} · {{ release.version }}</p>
+  </div>
+</div>
+<section class="panel form-panel narrow">
+  {% include "components/admin_errors.html" %}
+  {% set v = form_values or {} %}
+  <form method="post" enctype="multipart/form-data" action="/admin/releases/{{ release.id }}/files">
+    {% include "components/csrf.html" %}
+    <label>Файл
+      <input name="file" type="file" accept=".exe,.msi,.zip,.7z" required>
+    </label>
+    <p class="form-help">Файл буде потоково перевірено, переміщено в quarantine і не стане публічним автоматично.</p>
+    <label>Публічне ім’я файла
+      <input name="display_filename" maxlength="255" value="{{ v.get('display_filename', '') }}" placeholder="За замовчуванням — оригінальне ім’я">
+    </label>
+    <div class="form-grid">
+      <label>Архітектура
+        <select name="architecture">{% set selected = v.get('architecture', 'other') %}{% for item in architectures %}<option value="{{ item.value }}"{% if selected == item.value %} selected{% endif %}>{{ item.value }}</option>{% endfor %}</select>
+      </label>
+      <label>Тип пакета
+        <select name="package_type">{% set selected = v.get('package_type', 'other') %}{% for item in package_types %}<option value="{{ item.value }}"{% if selected == item.value %} selected{% endif %}>{{ item.value }}</option>{% endfor %}</select>
+      </label>
+    </div>
+    <div class="form-grid">
+      <label>Платформа<input name="platform" maxlength="100" required value="{{ v.get('platform', 'Windows') }}"></label>
+      <label>Редакція<input name="edition" maxlength="180" value="{{ v.get('edition', '') }}"></label>
+    </div>
+    <label>Видимість
+      <select name="visibility">{% set selected = v.get('visibility', 'private') %}{% for item in visibilities %}<option value="{{ item.value }}"{% if selected == item.value %} selected{% endif %}>{{ item.value }}</option>{% endfor %}</select>
+    </label>
+    <label>URL джерела<input name="source_url" maxlength="2048" value="{{ v.get('source_url', '') }}" placeholder="https://..."></label>
+    <label>Примітка адміністратора<textarea name="admin_note" maxlength="4000" rows="5">{{ v.get('admin_note', '') }}</textarea></label>
+    <button class="button" type="submit">Завантажити в quarantine</button>
+  </form>
+</section>
+{% endblock %}

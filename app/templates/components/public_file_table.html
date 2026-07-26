@@ -1,0 +1,41 @@
+{% if release.files %}
+<div class="table-scroll" tabindex="0" role="region" aria-label="Файли релізу {{ release.version }}">
+  <table class="file-table">
+    <caption class="visually-hidden">Доступні файли релізу {{ release.version }}</caption>
+    <thead>
+      <tr>
+        <th scope="col">Файл</th>
+        <th scope="col">Архітектура</th>
+        <th scope="col">Тип</th>
+        <th scope="col">Розмір</th>
+        <th scope="col">SHA-256</th>
+        <th scope="col"><span class="visually-hidden">Дія</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for file in release.files %}
+      <tr>
+        <td>
+          <strong>{{ file.display_filename }}</strong>
+          <span class="subtle">{{ file.platform }}{% if file.edition %} · {{ file.edition }}{% endif %}</span>
+          <span class="subtle">{{ file.signature_label }} · {{ file.download_count }} завантажень{% if file.published_at_label %} · додано {{ file.published_at_label }}{% endif %}</span>
+        </td>
+        <td>{{ file.architecture_label }}</td>
+        <td>{{ file.package_type_label }}</td>
+        <td>{{ file.file_size_label }}</td>
+        <td><code class="hash" title="SHA-256: {{ file.sha256 }}">{{ file.sha256 }}</code></td>
+        <td>
+          <a
+            class="button button-small"
+            href="{{ file.download_path }}"
+            aria-label="Завантажити {{ file.display_filename }}"
+          >Завантажити</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="empty-inline">Для цього релізу немає публічних файлів.</p>
+{% endif %}

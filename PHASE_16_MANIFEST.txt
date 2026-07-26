@@ -1,0 +1,58 @@
+SOFTWARE HUB — PHASE 16 MANIFEST
+================================
+
+Phase: 16 — Backup, restore, retention, reconciliation and maintenance CLI
+Status: COMPLETED
+Database migration: not required
+Alembic head: 0002_phase4_domain_schema
+
+PRIMARY IMPLEMENTATION
+----------------------
+app/services/backup_service.py
+app/services/reconciliation_service.py
+app/cli.py
+app/core/config.py
+app/core/constants.py
+app/services/audit_service.py
+scripts/backup.sh
+.env.example
+
+DOCUMENTATION
+-------------
+BACKUP_RESTORE.md
+OPERATIONS.md
+docs/maintenance-backup-reconciliation.md
+docs/phase-16-review.md
+docs/release-checklist.md
+docs/threat-model.md
+README.md
+
+TESTS
+-----
+tests/integration/backup/test_backup_service_phase16.py
+tests/integration/reconciliation/test_reconciliation_phase16.py
+tests/integration/test_cli.py
+tests/unit/core/test_config.py
+tests/unit/core/test_config_additional.py
+
+FINAL ACCEPTANCE
+----------------
+pytest regression: 479 passed
+Warnings: 0
+compileall: passed
+AST and annotation audit: passed
+line-length/trailing-whitespace audit: passed
+Jinja compilation: 36 templates passed
+Alembic upgrade/check/downgrade/re-upgrade: passed
+Alembic schema drift: absent
+uv export --frozen --no-dev: passed
+TOML/YAML parsing: passed
+Markdown internal links: passed
+real maintenance CLI smoke: passed
+
+ENVIRONMENT LIMITATIONS
+-----------------------
+Local execution used Python 3.13.5; target runtime remains Python 3.14.
+The sandbox could not reliably complete the coverage-instrumented full suite, so
+no new aggregate coverage percentage is claimed. Ruff, mypy, Bandit, pip-audit
+and the configured coverage threshold remain mandatory GitHub Actions gates.

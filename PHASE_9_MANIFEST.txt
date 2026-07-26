@@ -1,0 +1,100 @@
+SOFTWARE HUB — PHASE 9 MANIFEST
+================================
+
+Status: COMPLETE
+Date: 2026-07-23
+Scope: private filesystem storage foundation
+Database migration: none; Alembic head remains 0002_phase4_domain_schema
+
+NEW FILES
+---------
+app/storage/__init__.py
+app/storage/cleanup.py
+app/storage/disk.py
+app/storage/filename.py
+app/storage/hashing.py
+app/storage/manager.py
+app/storage/move.py
+app/storage/paths.py
+app/storage/upload.py
+app/storage/validation.py
+docs/storage-foundation.md
+docs/phase-9-review.md
+tests/integration/storage/test_storage_manager.py
+tests/security/test_storage_security.py
+tests/unit/storage/test_cleanup.py
+tests/unit/storage/test_disk.py
+tests/unit/storage/test_filename.py
+tests/unit/storage/test_move.py
+tests/unit/storage/test_paths.py
+tests/unit/storage/test_upload_plan.py
+
+CHANGED FILES
+-------------
+README.md
+.env.example
+app/core/config.py
+app/core/constants.py
+app/main.py
+docs/README.md
+tests/conftest.py
+tests/unit/core/test_config_phase2.py
+
+DELIVERED
+---------
+- typed private storage layout
+- startup creation, mode hardening and writable probes
+- 0750 directory and 0640 stored-file permissions
+- minimum free-space reserve
+- Unicode NFKC filename normalization
+- NUL, control, bidi, reserved-name and separator rejection
+- deceptive double-extension policy
+- UUID-based physical names and two-level sharding
+- Linux and Windows-style path-traversal protection
+- symlink component and root rejection
+- server-generated upload path planning
+- same-filesystem atomic move with fsync
+- cross-device and existing-destination refusal
+- conservative dry-run temporary cleanup
+- FastAPI lifespan integration
+
+ACCEPTANCE RESULTS
+------------------
+pytest:                         358 passed
+branch-aware coverage:         95.21%
+warnings:                      0
+Python compileall:             passed
+storage startup smoke:         passed
+safe-path adversarial tests:   passed
+filename confusion tests:      passed
+permissions checks:            passed
+atomic two-step move smoke:    passed
+temporary cleanup safety:      passed
+Alembic upgrade:               passed
+Alembic downgrade/re-upgrade:  passed
+Alembic schema drift:          none
+TOML/YAML parsing:             passed
+uv.lock existence:             passed
+pyproject/uv.lock alignment:   passed
+Markdown internal links:       passed
+Python lines over 100 chars:   0
+critical storage TODOs:        0
+
+ENVIRONMENT LIMITATIONS
+-----------------------
+- local interpreter: Python 3.13.5
+- target interpreter: Python 3.14
+- uv cannot perform full lock/export validation locally because Python 3.14 is absent
+- Ruff, mypy, Bandit and pip-audit are not available in the sandbox tool cache
+- full Python 3.14 and static/security quality gates remain mandatory in GitHub Actions
+
+DEFERRED TO LATER PHASES
+------------------------
+- streaming multipart upload and actual byte limits
+- SHA-256 and duplicate lookup
+- magic-byte and MIME validation
+- optional malware scanning
+- ReleaseFile quarantine metadata and compensation
+- publication and physical deletion lifecycle
+- Nginx protected downloads
+- storage reconciliation and maintenance CLI

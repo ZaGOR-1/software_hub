@@ -1,0 +1,74 @@
+name: Browser E2E
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master, main]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  UV_FROZEN: "1"
+  AXE_CORE_VERSION: "4.11.4"
+
+jobs:
+  playwright:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.10.0"
+          enable-cache: true
+
+      - name: Install Python
+        run: uv python install 3.14
+
+      - name: Synchronize locked application environment
+        run: uv sync --all-groups --locked
+
+      - name: Install Nginx and Playwright browser dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends nginx
+          uv run playwright install --with-deps chromium firefox webkit
+
+      - name: Install pinned axe-core accessibility engine
+        run: npm install --no-save --package-lock=false --ignore-scripts "axe-core@${AXE_CORE_VERSION}"
+
+      - name: Compile E2E test code
+        run: uv run python -m compileall -q tests/e2e
+
+      - name: Run full browser and accessibility matrix
+        env:
+          SOFTWARE_HUB_RUN_E2E: "1"
+          SOFTWARE_HUB_E2E_BROWSERS: chromium,firefox,webkit
+          SOFTWARE_HUB_E2E_VIDEO: "1"
+          AXE_CORE_PATH: ${{ github.workspace }}/node_modules/axe-core/axe.min.js
+        run: |
+          mkdir -p test-results/e2e
+          uv run pytest -o addopts="" -m e2e tests/e2e \
+            --strict-config --strict-markers \
+            --junitxml=test-results/e2e/junit.xml \
+            -q
+
+      - name: Upload E2E artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: playwright-e2e-${{ github.run_id }}
+          path: |
+            test-results/e2e
+            tests/artifacts/e2e
+            /tmp/pytest-of-runner/**/phase18-e2e*/**/*.log
+            /tmp/pytest-of-runner/**/test_*/video
+          if-no-files-found: ignore
+          retention-days: 14

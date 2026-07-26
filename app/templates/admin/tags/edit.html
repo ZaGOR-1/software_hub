@@ -1,0 +1,22 @@
+{% extends "admin/base.html" %}
+{% block title %}Редагування тега{% endblock %}
+{% block content %}
+<div class="page-heading"><div><a class="back-link" href="/admin/tags">← Теги</a><h1>Редагування тега</h1></div></div>
+<section class="panel form-panel narrow">
+  {% include "components/admin_errors.html" %}
+  <form method="post" action="/admin/tags/{{ tag.id }}/edit">
+    {% include "components/csrf.html" %}
+    <label>Назва<input name="name" maxlength="120" required value="{{ form_values.get('name', tag.name) if form_values else tag.name }}"></label>
+    <label>Slug<input name="slug" maxlength="140" required value="{{ form_values.get('slug', tag.slug) if form_values else tag.slug }}"></label>
+    <button class="button" type="submit">Зберегти</button>
+  </form>
+</section>
+<section class="danger-zone narrow">
+  <h2>Видалення тега</h2><p>Зв’язки тега з програмами буде видалено.</p>
+  <form method="post" action="/admin/tags/{{ tag.id }}/delete">
+    {% include "components/csrf.html" %}
+    <label class="check"><input name="confirm" type="checkbox" value="yes" required> Я підтверджую видалення metadata тега</label>
+    <button class="button button-danger" type="submit">Видалити тег</button>
+  </form>
+</section>
+{% endblock %}

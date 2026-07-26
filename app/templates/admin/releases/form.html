@@ -1,0 +1,37 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ 'Редагування релізу' if release else 'Новий реліз' }}{% endblock %}
+{% block content %}
+<div class="page-heading"><div><a class="back-link" href="/admin/software/{{ software.id }}/preview">← {{ software.name }}</a><h1>{{ 'Редагування релізу' if release else 'Новий реліз' }}</h1></div></div>
+<section class="panel form-panel narrow">
+  {% include "components/admin_errors.html" %}
+  {% set v = form_values or {} %}
+  <form method="post" action="{{ '/admin/releases/' ~ release.id ~ '/edit' if release else '/admin/software/' ~ software.id ~ '/releases' }}">
+    {% include "components/csrf.html" %}
+    <label>Версія<input name="version" maxlength="100" required value="{{ v.get('version', release.version if release else '') }}"></label>
+    <label>Канал<select name="release_channel">{% set channel_value = v.get('release_channel', release.release_channel.value if release else 'stable') %}{% for channel in channels %}<option value="{{ channel.value }}"{% if channel_value == channel.value %} selected{% endif %}>{{ channel.value }}</option>{% endfor %}</select></label>
+    <label>Дата релізу<input name="release_date" type="date" value="{{ v.get('release_date', release.release_date.isoformat() if release and release.release_date else '') }}"></label>
+    <label>Список змін<textarea name="changelog" maxlength="20000" rows="10">{{ v.get('changelog', release.changelog if release and release.changelog else '') }}</textarea></label>
+    <button class="button" type="submit">{{ 'Зберегти' if release else 'Створити реліз' }}</button>
+  </form>
+</section>
+{% if release %}
+<section class="panel">
+  <div class="panel-heading"><h2>Файли релізу</h2><a class="button" href="/admin/releases/{{ release.id }}/files/new">Завантажити файл</a></div>
+  {% if release.files %}<div class="table-wrap" tabindex="0" role="region" aria-label="Файли релізу"><table><thead><tr><th scope="col">Файл</th><th scope="col">Статус</th><th scope="col">Scanner</th><th scope="col">Розмір</th><th scope="col"></th></tr></thead><tbody>
+  {% for item in release.files %}<tr><td><strong>{{ item.display_filename }}</strong><br><code>{{ item.sha256[:16] }}…</code></td><td><span class="badge">{{ item.status.value }}</span></td><td>{{ item.scanner_status.value }}</td><td>{{ item.file_size_bytes }} B</td><td><a href="/admin/files/{{ item.id }}">Переглянути</a></td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<p class="empty-state">Файлів ще немає. Перший upload залишиться приватним до окремої публікації.</p>{% endif %}
+</section>
+<section class="panel narrow">
+  <div class="panel-heading"><h2>Статус релізу</h2><span class="badge">{{ release.status.value }}</span></div>
+  <div class="button-row">
+    {% if release.status.value in ['draft', 'archived'] %}<form method="post" action="/admin/releases/{{ release.id }}/publish">{% include "components/csrf.html" %}<button class="button" type="submit">Опублікувати</button></form>{% endif %}
+    {% if release.status.value in ['draft', 'published'] %}<form method="post" action="/admin/releases/{{ release.id }}/archive">{% include "components/csrf.html" %}<button class="button button-secondary" type="submit">Архівувати</button></form>{% endif %}
+    {% if release.status.value != 'disabled' %}<form method="post" action="/admin/releases/{{ release.id }}/disable">{% include "components/csrf.html" %}<button class="button button-danger" type="submit">Вимкнути</button></form>{% endif %}
+    {% if release.status.value == 'disabled' %}<form method="post" action="/admin/releases/{{ release.id }}/restore">{% include "components/csrf.html" %}<button class="button" type="submit">Повернути в чернетки</button></form>{% endif %}
+  </div>
+  {% if release.status.value == 'published' and release.release_channel.value == 'stable' %}
+  <hr><div class="button-row">{% if release.is_current %}<form method="post" action="/admin/releases/{{ release.id }}/current/clear">{% include "components/csrf.html" %}<button class="button button-secondary" type="submit">Зняти позначку current</button></form>{% else %}<form method="post" action="/admin/releases/{{ release.id }}/current">{% include "components/csrf.html" %}<button class="button" type="submit">Зробити current stable</button></form>{% endif %}</div>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>{{ seo.title }}</title>
+  <meta name="description" content="{{ seo.description }}">
+  <meta name="robots" content="{{ seo.robots }}">
+  <link rel="canonical" href="{{ seo.canonical_url }}">
+  <meta property="og:locale" content="{{ seo.locale }}">
+  <meta property="og:type" content="{{ seo.open_graph_type }}">
+  <meta property="og:site_name" content="{{ seo.site_name }}">
+  <meta property="og:title" content="{{ seo.title }}">
+  <meta property="og:description" content="{{ seo.description }}">
+  <meta property="og:url" content="{{ seo.canonical_url }}">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{{ seo.title }}">
+  <meta name="twitter:description" content="{{ seo.description }}">
+  <link rel="icon" href="/static/icons/favicon.svg" type="image/svg+xml">
+  <script src="/static/js/theme-bootstrap.js"></script>
+  <link rel="stylesheet" href="/static/css/theme.css">
+  <link rel="stylesheet" href="/static/css/public.css">
+  <script src="/static/js/theme.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Перейти до вмісту</a>
+  <header class="site-header">
+    <div class="container header-row">
+      <a class="brand" href="/" aria-label="Software Hub — головна">
+        <span class="brand-mark" aria-hidden="true">SH</span>
+        <span>{{ app_name }}</span>
+      </a>
+      <div class="header-actions">
+        <nav class="main-nav" aria-label="Основна навігація">
+          <a href="/"{% if current_path == '/' %} aria-current="page"{% endif %}>Головна</a>
+          <a href="/software"{% if current_path.startswith('/software') or current_path.startswith('/category/') or current_path.startswith('/search') %} aria-current="page"{% endif %}>Каталог</a>
+          {% if admin_session %}
+          <a href="/admin">Адмін-панель</a>
+          {% else %}
+          <a href="/admin/login">Вхід</a>
+          {% endif %}
+        </nav>
+        <button class="theme-toggle" type="button" data-theme-toggle hidden>
+          <span class="theme-toggle-icon" data-theme-icon aria-hidden="true">◐</span>
+          <span class="theme-toggle-label" data-theme-label>Системна тема</span>
+        </button>
+      </div>
+    </div>
+    <div class="container header-search">
+      <form class="search-form" action="/search" method="get" role="search">
+        <label class="visually-hidden" for="global-search">Пошук програм</label>
+        <input
+          id="global-search"
+          name="q"
+          type="search"
+          minlength="2"
+          maxlength="100"
+          autocomplete="off"
+          enterkeyhint="search"
+          placeholder="Знайти програму, розробника або тег"
+          value="{{ view.query if view is defined and view.query is defined else '' }}"
+        >
+        <button type="submit">Знайти</button>
+      </form>
+    </div>
+  </header>
+
+  <main id="main-content" class="container page-shell" tabindex="-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <p>Software Hub — персональний каталог програм.</p>
+      <p>Перед встановленням перевіряйте SHA-256 і довіряйте лише відомим джерелам.</p>
+    </div>
+  </footer>
+</body>
+</html>

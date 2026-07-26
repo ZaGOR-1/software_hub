@@ -1,0 +1,204 @@
+{
+  "project": "Software Hub",
+  "audit_version": "1",
+  "audit_date": "2026-07-26",
+  "audited_release": "1.0.0-rc.1",
+  "verdict": "NO-GO",
+  "verdict_scope": "Original full-audit verdict; a clean Ubuntu/container/browser/recovery re-audit is still pending.",
+  "remediation_status": "P1_P2_P3_RESOLVED_AWAITING_FULL_REAUDIT",
+  "remediation_date": "2026-07-26",
+  "release_readiness_score": 47,
+  "score_scope": "Original audit score; not recalculated by the focused P1 remediation pass.",
+  "severity_counts": {
+    "P0": 0,
+    "P1": 7,
+    "P2": 2,
+    "P3": 1
+  },
+  "open_severity_counts": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0,
+    "P3": 0
+  },
+  "findings": [
+    {
+      "id": "SH-AUDIT-001",
+      "severity": "P1",
+      "area": "dependencies",
+      "title": "Чисте locked-встановлення на цільовому Python 3.14 не збирається",
+      "release_blocker": true,
+      "status": "resolved",
+      "resolved_at": "2026-07-26",
+      "resolution_evidence": "uv.lock regenerated with pydantic 2.13.4/pydantic-core 2.46.4 and CPython 3.14 wheels; clean uv sync --all-groups --locked and import smoke passed on CPython 3.14.6.",
+      "files": [
+        "pyproject.toml",
+        "uv.lock",
+        "Dockerfile"
+      ],
+      "evidence": "uv sync --all-groups --locked на CPython 3.14.3 завершується з exit 1: pydantic-core 2.33.1 використовує PyO3 0.24.0 з максимальною підтримуваною версією Python 3.13. Повтор із PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1 також не збирає jiter 0.9.0. Dockerfile базується на Python 3.14.6 і встановлює той самий frozen export.",
+      "recommendation": "Оновити сумісний набір FastAPI/Pydantic/pydantic-core/jiter, перегенерувати uv.lock на Python 3.14 і довести чисті uv sync --locked та Docker build на Linux.",
+      "verification": "Новий порожній runner: uv lock --check; uv sync --all-groups --locked; uv run python -c \"import app, pydantic_core\"; docker build --no-cache ."
+    },
+    {
+      "id": "SH-AUDIT-002",
+      "severity": "P1",
+      "area": "code quality",
+      "title": "Locked Ruff не розуміє py314, а актуальна перевірка показує неочищений baseline",
+      "release_blocker": true,
+      "status": "resolved",
+      "resolved_at": "2026-07-26",
+      "resolution_evidence": "Ruff 0.15.22 is locked; ruff format --check reports 192 formatted files and ruff check reports no findings.",
+      "files": [
+        "pyproject.toml",
+        "uv.lock"
+      ],
+      "evidence": "Locked ruff 0.11.7 завершується з exit 2 на pyproject.toml:36: unknown variant py314. Ізольований Ruff 0.15.22 знаходить 687 lint-порушень та 46 файлів, які потребують форматування.",
+      "recommendation": "Підняти мінімальну/locked-версію Ruff до версії з підтримкою py314, відформатувати код і розібрати lint-порушення без масового приховування правил.",
+      "verification": "У frozen-оточенні uv run ruff format --check . та uv run ruff check . мають завершитися з exit 0."
+    },
+    {
+      "id": "SH-AUDIT-003",
+      "severity": "P1",
+      "area": "tests/CI",
+      "title": "Стандартний dev-граф не містить Playwright, але pytest і mypy імпортують його безумовно",
+      "release_blocker": true,
+      "status": "resolved",
+      "resolved_at": "2026-07-26",
+      "resolution_evidence": "Playwright 1.61.0 is in the locked e2e group; tests are packages; strict mypy passed 188 source files and standard pytest collected 514 tests without ad-hoc installs.",
+      "files": [
+        "pyproject.toml",
+        "tests/e2e/conftest.py",
+        "tests/e2e/accessibility.py",
+        ".github/workflows/ci.yml"
+      ],
+      "evidence": "Після встановлення точного all-groups export звичайний pytest падає під час collection з ModuleNotFoundError: playwright. Locked mypy 1.15.0 також повідомляє два missing-import errors для playwright.sync_api. CI запускає звичайні mypy і pytest без uv --with playwright.",
+      "recommendation": "Додати pinned Playwright до окремої dependency group і синхронізувати її в потрібних jobs або виключити E2E-модулі зі звичайного collection/type-check, залишивши окремий повний E2E job.",
+      "verification": "На чистому runner без ручних pip install команди uv run mypy і uv run pytest повинні пройти collection та виконання."
+    },
+    {
+      "id": "SH-AUDIT-004",
+      "severity": "P1",
+      "area": "tests/CI",
+      "title": "Infrastructure-тест Phase 18 детерміновано падає через застаріле текстове очікування",
+      "release_blocker": true,
+      "status": "resolved",
+      "resolved_at": "2026-07-26",
+      "resolution_evidence": "Phase 18 source reads are explicitly UTF-8 and synchronized with the real E2E flow; final infrastructure run: 24 passed, 1 platform skip.",
+      "files": [
+        "tests/infrastructure/test_quality_gates_phase18.py",
+        "tests/e2e/test_full_flow.py"
+      ],
+      "evidence": "pytest -o addopts='' tests/infrastructure -q виконав 21 тест успішно і 3 невдало; test_e2e_suite_contains_critical_flow_and_accessibility_matrix очікує фразу «Створити категорію», якої немає в tests/e2e/test_full_flow.py. Ця помилка не залежить від Windows permission semantics.",
+      "recommendation": "Замінити крихку перевірку текстових фраз на структурну/поведінкову перевірку реального flow або синхронізувати expectation з тестом.",
+      "verification": "Запустити tests/infrastructure на чистому Ubuntu runner і отримати exit 0."
+    },
+    {
+      "id": "SH-AUDIT-005",
+      "severity": "P1",
+      "area": "security/dependencies",
+      "title": "Starlette 1.1.0 має застосовну High DoS-вразливість у form parsing",
+      "release_blocker": true,
+      "status": "resolved",
+      "resolved_at": "2026-07-26",
+      "resolution_evidence": "FastAPI 0.140.0/Starlette 1.3.1 locked; login performs one bounded parse (64 fields); Nginx applies 64k login, 1m admin, and 2g upload limits; field-flood regression passed.",
+      "files": [
+        "uv.lock",
+        "app/routers/auth/dependencies.py",
+        "nginx/templates/production.conf.template"
+      ],
+      "evidence": "pip-audit для frozen runtime export знаходить GHSA-82w8-qh3p-5jfq / CVE-2026-54283 у Starlette 1.1.0, fixed in 1.3.1, CVSS 7.5. app/routers/auth/dependencies.py:77-81 покладається на max_fields/max_part_size request.form(), але advisory зазначає, що application/x-www-form-urlencoded ігнорує ці ліміти. Production Nginx дозволяє body до 2g, а Uvicorn має один worker.",
+      "recommendation": "Оновити сумісний FastAPI/Starlette lock щонайменше до Starlette 1.3.1; додатково встановити малий per-route body limit для login та звичайних admin form POST.",
+      "verification": "pip-audit frozen runtime export без GHSA-82w8-qh3p-5jfq; regression-тест на велику кількість urlencoded полів; навантажувальна перевірка, що event loop не блокується."
+    },
+    {
+      "id": "SH-AUDIT-006",
+      "severity": "P1",
+      "area": "supply chain/CI",
+      "title": "CI dependency audit перевіряє ізольоване середовище інструмента, а не runtime-залежності застосунку",
+      "release_blocker": true,
+      "status": "resolved",
+      "resolved_at": "2026-07-26",
+      "resolution_evidence": "CI and release verifier export the frozen no-dev graph and pass it to pip-audit --requirement; pip-audit 2.10.1 checked 27 runtime dependencies and found 0 vulnerabilities.",
+      "files": [
+        ".github/workflows/ci.yml"
+      ],
+      "evidence": "Точна CI-команда uvx --from \"pip-audit==2.10.1\" pip-audit повертає exit 0 і «No known vulnerabilities found». Той самий pip-audit із -r на frozen runtime export повертає exit 1: 7 advisory records у 4 пакетах, включно з High GHSA-82w8-qh3p-5jfq. Отже green gate дає хибне підтвердження.",
+      "recommendation": "Експортувати frozen runtime requirements і запускати pip-audit -r цього файла або використати підтримуваний audit locked project; артефакт звіту завантажувати незалежно від результату.",
+      "verification": "Тимчасово зафіксована відома вразлива версія мусить робити job red; після оновлення lock той самий job має бути green."
+    },
+    {
+      "id": "SH-AUDIT-007",
+      "severity": "P1",
+      "area": "containers/CI",
+      "title": "Container workflow викликає healthcheck за шляхом, якого немає в app image",
+      "release_blocker": true,
+      "status": "resolved",
+      "resolved_at": "2026-07-26",
+      "resolution_evidence": "Container workflow invokes /usr/local/bin/software-hub-healthcheck.py and the infrastructure assertion passes; Docker runtime execution remains part of the pending full Ubuntu re-audit.",
+      "files": [
+        ".github/workflows/container-build.yml",
+        "Dockerfile"
+      ],
+      "evidence": ".github/workflows/container-build.yml:107 виконує python docker/healthcheck.py. Dockerfile:55 копіює файл лише як /usr/local/bin/software-hub-healthcheck.py, а директорія docker до image не копіюється. Навіть після виправлення залежностей цей runtime job детерміновано впаде.",
+      "recommendation": "Викликати /usr/local/bin/software-hub-healthcheck.py або перевіряти health status контейнера через inspect/compose ps.",
+      "verification": "Повний container-build workflow: build, Trivy, compose up, non-root checks і обидва healthchecks — exit 0."
+    },
+    {
+      "id": "SH-AUDIT-008",
+      "severity": "P2",
+      "area": "supply chain",
+      "title": "Не всі GitHub Actions закріплені immutable commit SHA",
+      "release_blocker": false,
+      "status": "resolved",
+      "resolved_at": "2026-07-26",
+      "resolution_evidence": "All 15 third-party action invocations in the four workflows use reviewed 40-hex commit SHAs with version comments; the signed Trivy tag is pinned to its peeled commit. A regression test enforces immutable refs and weekly Dependabot GitHub Actions updates are configured.",
+      "files": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/e2e.yml",
+        ".github/workflows/container-build.yml",
+        ".github/workflows/release-candidate.yml"
+      ],
+      "evidence": "actions/checkout@v5, actions/upload-artifact@v4 та aquasecurity/trivy-action@v0.36.0 використовують mutable tag; лише astral-sh/setup-uv закріплено commit SHA.",
+      "recommendation": "Закріпити всі third-party actions повними commit SHA з коментарем версії та налаштувати контрольоване оновлення Dependabot/Renovate.",
+      "verification": "Статичний workflow scan не знаходить uses: owner/action@v* за винятком локальних actions."
+    },
+    {
+      "id": "SH-AUDIT-009",
+      "severity": "P2",
+      "area": "release evidence",
+      "title": "Для кандидата не надано provenance та immutable release evidence",
+      "release_blocker": false,
+      "status": "resolved",
+      "resolved_at": "2026-07-26",
+      "resolution_evidence": "The RC workflow now requires the exact v<app version> tag to resolve to GITHUB_SHA, creates a deterministic git archive with SHA-256, emits a machine-readable tag/commit/run/digest manifest, signs the archive/checksums/manifest/rehearsal with actions/attest, persists the Sigstore bundle plus attestation ID/URL, and uploads a commit-and-attempt-named immutable artifact for 90 days. The workflow fails closed when GitHub attestation eligibility is unavailable (private/internal repositories require Enterprise Cloud). The next protected tag run remains mandatory external execution evidence before GO.",
+      "files": [
+        "docs/release-candidate.md",
+        "docs/production-acceptance.md",
+        ".github/workflows/release-candidate.yml"
+      ],
+      "evidence": "Аудитований snapshot не містить .git, tag/commit identity, CI run URLs/artifacts, RC archive або checksum/signature. Також немає зовнішнього доказу clean Docker/Nginx/Trivy/Playwright і практичного restore rehearsal.",
+      "recommendation": "Після виправлень створити кандидата з конкретного protected commit/tag, сформувати archive + SHA-256, зберегти CI artifacts/SARIF/JUnit/coverage та підписаний acceptance record.",
+      "verification": "Незалежна перевірка checksum відтворює той самий archive; tag вказує на audited commit; усі required CI URLs і artifacts доступні."
+    },
+    {
+      "id": "SH-AUDIT-010",
+      "severity": "P3",
+      "area": "test portability",
+      "title": "Частина test suite залежить від POSIX semantics та локального default encoding",
+      "release_blocker": false,
+      "status": "resolved",
+      "resolved_at": "2026-07-26",
+      "resolution_evidence": "All text fixtures use explicit UTF-8 where needed; POSIX permission/symlink assertions are capability-aware; Windows full suite passed 497 tests with 17 intentional platform/E2E skips and 92.16% combined coverage.",
+      "files": [
+        "tests/unit/test_theme_assets_phase14.py",
+        "tests/integration/storage/test_storage_manager.py",
+        "tests/integration/backup/test_backup_service_phase16.py",
+        "tests/infrastructure/test_release_candidate_phase19.py"
+      ],
+      "evidence": "На Windows fallback-run отримано 460 passed, 43 failed, 10 skipped. Більшість failures спричинені chmod/symlink/executable-bit/fsync semantics; theme test додатково падає з cp1251 UnicodeDecodeError через Path.read_text() без encoding.",
+      "recommendation": "Явно маркувати Linux-only тести, для тексту завжди задавати encoding='utf-8', а portability-sensitive filesystem assertions ізолювати за platform capability.",
+      "verification": "Документовані Linux і Windows jobs мають очікувані результати без випадкових collection/encoding failures."
+    }
+  ]
+}

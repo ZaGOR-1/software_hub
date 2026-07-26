@@ -1,0 +1,21 @@
+{% extends "admin/base.html" %}
+{% block title %}Теги{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">Каталог</p><h1>Теги</h1></div></div>
+<div class="split-layout">
+<section class="panel">
+  <div class="panel-heading"><h2>Список тегів</h2><span>{{ page.total }}</span></div>
+  {% if page.items %}<div class="tag-list">{% for tag in page.items %}<a href="/admin/tags/{{ tag.id }}/edit"><span>{{ tag.name }}</span><code>{{ tag.slug }}</code></a>{% endfor %}</div>{% else %}<p class="empty-state">Тегів ще немає.</p>{% endif %}
+  {% include "components/admin_pagination.html" %}
+</section>
+<section class="panel form-panel">
+  <h2>Новий тег</h2>{% include "components/admin_errors.html" %}
+  <form method="post" action="/admin/tags">
+    {% include "components/csrf.html" %}
+    <label>Назва<input name="name" maxlength="120" required value="{{ form_values.get('name', '') }}"></label>
+    <label>Slug <span class="hint">можна залишити порожнім</span><input name="slug" maxlength="140" value="{{ form_values.get('slug', '') }}"></label>
+    <button class="button" type="submit">Створити тег</button>
+  </form>
+</section>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+SOFTWARE HUB — PHASE 15 MANIFEST
+================================
+
+Phase: 15 — Audit, dashboard, health and observability
+Status: implemented
+Database schema change: none
+Alembic head: 0002_phase4_domain_schema
+Target runtime: Python 3.14
+Local validation runtime: Python 3.13.5
+
+PRIMARY IMPLEMENTATION
+----------------------
+app/services/audit_service.py
+app/services/dashboard_service.py
+app/services/system_status_service.py
+app/repositories/audit_repository.py
+app/repositories/download_stat_repository.py
+app/repositories/release_file_repository.py
+app/routers/health/health.py
+app/routers/admin/audit.py
+app/routers/admin/dashboard.py
+app/templates/admin/audit/index.html
+app/templates/admin/dashboard.html
+app/templates/admin/base.html
+app/static/css/admin.css
+app/main.py
+
+TESTS ADDED
+-----------
+tests/unit/services/test_audit_service_phase15.py
+tests/unit/services/test_system_status_service_phase15.py
+tests/integration/audit/test_audit_phase15.py
+tests/integration/health/test_system_status_phase15.py
+
+DOCUMENTATION
+-------------
+docs/operations-observability.md
+docs/phase-15-review.md
+docs/threat-model.md
+docs/release-checklist.md
+docs/README.md
+README.md
+
+FEATURES COMPLETED
+------------------
+[PASS] centralized stable audit action identifiers
+[PASS] strict audit metadata key allowlist
+[PASS] bounded audit scalar and sequence values
+[PASS] authenticated audit browser
+[PASS] action/result/user/entity/date filters
+[PASS] 50-row bounded audit pagination
+[PASS] eager administrator identity loading
+[PASS] catalog and file lifecycle dashboard counters
+[PASS] total and UTC-daily download counters
+[PASS] quarantine and disabled-file counters
+[PASS] database and storage operational state
+[PASS] disk reserve readiness and authenticated capacity display
+[PASS] recognized backup manifest discovery
+[PASS] public application/database/storage/disk health checks
+[PASS] generic safe 503 responses
+[PASS] structured unhealthy-component events
+[PASS] no physical path exposure
+
+AUTOMATED ACCEPTANCE
+--------------------
+[PASS] pytest: 460 passed
+[PASS] branch coverage: 94.10%
+[PASS] warnings: 0
+[PASS] Python compileall
+[PASS] Jinja template compilation: 36 templates
+[PASS] Python source lines <= 100 characters
+[PASS] source trailing-whitespace check
+[PASS] TOML and GitHub Actions YAML parsing
+[PASS] JavaScript syntax checks
+[PASS] Node theme DOM-runtime checks
+[PASS] Alembic upgrade/current/check
+[PASS] Alembic downgrade/re-upgrade
+[PASS] Alembic schema drift: absent
+[PASS] uv export --frozen --no-dev
+[PASS] real Uvicorn health/login/dashboard/audit smoke
+
+ENVIRONMENT LIMITATIONS
+-----------------------
+[NOT RUN LOCALLY] Python 3.14, Ruff, mypy, Bandit and pip-audit executables
+
+These checks remain mandatory in the configured GitHub Actions quality gates.

@@ -1,0 +1,80 @@
+{% extends "public/base.html" %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">Власне сховище · пряме завантаження</p>
+    <h1>Програми й інсталяційні файли в одному каталозі</h1>
+    <p class="hero-copy">
+      Знаходьте актуальні версії, вибирайте архітектуру та звіряйте контрольну суму перед встановленням.
+    </p>
+    <div class="hero-actions">
+      <a class="button" href="/software">Відкрити каталог</a>
+      <a class="button button-secondary" href="#latest">Останні оновлення</a>
+    </div>
+  </div>
+  <div class="trust-panel" aria-label="Можливості каталогу">
+    <strong>Що доступно</strong>
+    <ul>
+      <li>SHA-256 для кожного файла</li>
+      <li>Історія релізів і changelog</li>
+      <li>EXE, MSI, ZIP та 7z</li>
+      <li>Пряме завантаження із сервера</li>
+    </ul>
+  </div>
+</section>
+
+{% if view.categories %}
+<section class="section-block" aria-labelledby="categories-title">
+  <div class="section-heading">
+    <div><p class="eyebrow">Навігація</p><h2 id="categories-title">Категорії</h2></div>
+    <a href="/software">Усі програми →</a>
+  </div>
+  <div class="category-grid">
+    {% for category in view.categories %}
+    <a class="category-card" href="/category/{{ category.slug }}">
+      <strong>{{ category.name }}</strong>
+      <span>{{ category.software_count }} програм</span>
+      {% if category.description %}<p>{{ category.description }}</p>{% endif %}
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if view.featured %}
+<section class="section-block" aria-labelledby="featured-title">
+  <div class="section-heading">
+    <div><p class="eyebrow">Рекомендоване</p><h2 id="featured-title">Вибрані програми</h2></div>
+  </div>
+  <div class="software-grid">
+    {% for card in view.featured %}{% include "components/public_software_card.html" %}{% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section id="latest" class="section-block" aria-labelledby="latest-title">
+  <div class="section-heading">
+    <div><p class="eyebrow">Свіжі версії</p><h2 id="latest-title">Останні оновлення</h2></div>
+    <a href="/software?sort=updated">Дивитися всі →</a>
+  </div>
+  {% if view.latest %}
+  <div class="software-grid">
+    {% for card in view.latest %}{% include "components/public_software_card.html" %}{% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state"><h3>Каталог поки порожній</h3><p>Опубліковані програми з’являться тут.</p></div>
+  {% endif %}
+</section>
+
+{% if view.popular %}
+<section class="section-block" aria-labelledby="popular-title">
+  <div class="section-heading">
+    <div><p class="eyebrow">За завантаженнями</p><h2 id="popular-title">Популярні програми</h2></div>
+    <a href="/software?sort=popularity">Повний рейтинг →</a>
+  </div>
+  <div class="software-grid">
+    {% for card in view.popular %}{% include "components/public_software_card.html" %}{% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}

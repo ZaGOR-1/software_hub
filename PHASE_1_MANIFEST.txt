@@ -1,0 +1,21 @@
+Software Hub — Phase 1 artifact manifest
+
+Implemented:
+- FastAPI application factory
+- typed bootstrap settings
+- GET /health
+- pytest + coverage
+- Ruff and mypy configuration
+- pre-commit configuration
+- GitHub Actions CI
+- dependency lock file
+- root README and Phase 1 review
+
+Local verification:
+- 7 tests passed
+- 100% branch coverage
+- Uvicorn health smoke passed
+- TOML/YAML/lock graph checks passed
+
+Environment limitation:
+- Full Python 3.14 frozen sync and external dev-tool execution must run in CI.

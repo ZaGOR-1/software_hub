@@ -1,0 +1,30 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ 'Редагування програми' if software else 'Нова програма' }}{% endblock %}
+{% block content %}
+<div class="page-heading"><div><a class="back-link" href="/admin/software">← Програми</a><h1>{{ 'Редагування програми' if software else 'Нова програма' }}</h1></div>{% if software %}<a class="button button-secondary" href="/admin/software/{{ software.id }}/preview">Перегляд</a>{% endif %}</div>
+<section class="panel form-panel wide">
+  {% include "components/admin_errors.html" %}
+  {% set v = form_values or {} %}
+  <form method="post" action="{{ '/admin/software/' ~ software.id ~ '/edit' if software else '/admin/software' }}">
+    {% include "components/csrf.html" %}
+    <div class="form-grid">
+      <label>Назва<input name="name" maxlength="180" required value="{{ v.get('name', software.name if software else '') }}"></label>
+      <label>Slug <span class="hint">генерується з назви, якщо порожній</span><input name="slug" maxlength="200" value="{{ v.get('slug', software.slug if software else '') }}"></label>
+      <label class="full">Короткий опис<textarea name="short_description" maxlength="500" rows="3" required>{{ v.get('short_description', software.short_description if software else '') }}</textarea></label>
+      <label class="full">Повний опис <span class="hint">plain text</span><textarea name="full_description" maxlength="20000" rows="9">{{ v.get('full_description', software.full_description if software and software.full_description else '') }}</textarea></label>
+      <label>Розробник<input name="developer_name" maxlength="180" value="{{ v.get('developer_name', software.developer_name if software and software.developer_name else '') }}"></label>
+      <label>Ліцензія<input name="license_name" maxlength="180" value="{{ v.get('license_name', software.license_name if software and software.license_name else '') }}"></label>
+      <label>Офіційний сайт<input name="official_website_url" type="url" maxlength="2048" value="{{ v.get('official_website_url', software.official_website_url if software and software.official_website_url else '') }}"></label>
+      <label>URL джерела<input name="source_url" type="url" maxlength="2048" value="{{ v.get('source_url', software.source_url if software and software.source_url else '') }}"></label>
+      <label>Категорія<select name="category_id"><option value="">Без категорії</option>{% set category_value = v.get('category_id', software.category_id if software else '')|string %}{% for category in categories %}<option value="{{ category.id }}"{% if category_value == category.id|string %} selected{% endif %}>{{ category.name }}</option>{% endfor %}</select></label>
+      <label>Видимість<select name="visibility">{% set visibility_value = v.get('visibility', software.visibility.value if software else 'private') %}{% for item in visibilities %}<option value="{{ item.value }}"{% if visibility_value == item.value %} selected{% endif %}>{{ item.value }}</option>{% endfor %}</select></label>
+      <fieldset class="full"><legend>Теги</legend><div class="checkbox-grid">{% for tag in tags %}<label class="check"><input name="tag_ids" type="checkbox" value="{{ tag.id }}"{% if tag.id|string in selected_tag_ids %} checked{% endif %}> {{ tag.name }}</label>{% else %}<p>Спочатку створіть теги.</p>{% endfor %}</div></fieldset>
+      <label class="full">Підтримувані ОС<textarea name="supported_os" maxlength="4000" rows="4">{{ v.get('supported_os', software.supported_os if software and software.supported_os else '') }}</textarea></label>
+      <label class="full">Системні вимоги<textarea name="system_requirements" maxlength="8000" rows="5">{{ v.get('system_requirements', software.system_requirements if software and software.system_requirements else '') }}</textarea></label>
+      {% set featured = v.get('is_featured') if form_values else software.is_featured if software else false %}
+      <label class="check full"><input name="is_featured" type="checkbox"{% if featured %} checked{% endif %}> Рекомендована програма</label>
+    </div>
+    <button class="button" type="submit">{{ 'Зберегти зміни' if software else 'Створити чернетку' }}</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,4 @@
+# Example public-IP allowlist. Keep at least one tested recovery address.
+allow 203.0.113.10/32;
+allow 2001:db8:100::10/128;
+deny all;

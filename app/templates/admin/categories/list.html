@@ -1,0 +1,29 @@
+{% extends "admin/base.html" %}
+{% block title %}Категорії{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">Каталог</p><h1>Категорії</h1></div></div>
+<div class="split-layout">
+<section class="panel">
+  <div class="panel-heading"><h2>Список категорій</h2><span>{{ page.total }}</span></div>
+  {% if page.items %}
+  <div class="table-wrap" tabindex="0" role="region" aria-label="Список категорій"><table><thead><tr><th scope="col">Назва</th><th scope="col">Slug</th><th scope="col">Порядок</th><th scope="col">Видимість</th><th scope="col"></th></tr></thead><tbody>
+  {% for category in page.items %}<tr><td>{{ category.name }}</td><td><code>{{ category.slug }}</code></td><td>{{ category.sort_order }}</td><td>{{ 'Видима' if category.is_visible else 'Прихована' }}</td><td><a href="/admin/categories/{{ category.id }}/edit">Редагувати</a></td></tr>{% endfor %}
+  </tbody></table></div>
+  {% else %}<p class="empty-state">Категорій ще немає.</p>{% endif %}
+  {% include "components/admin_pagination.html" %}
+</section>
+<section class="panel form-panel">
+  <h2>Нова категорія</h2>
+  {% include "components/admin_errors.html" %}
+  <form method="post" action="/admin/categories">
+    {% include "components/csrf.html" %}
+    <label>Назва<input name="name" maxlength="120" required value="{{ form_values.get('name', '') }}"></label>
+    <label>Slug <span class="hint">можна залишити порожнім</span><input name="slug" maxlength="140" value="{{ form_values.get('slug', '') }}"></label>
+    <label>Опис<textarea name="description" maxlength="2000" rows="4">{{ form_values.get('description', '') }}</textarea></label>
+    <label>Порядок<input name="sort_order" type="number" min="0" max="1000000" value="{{ form_values.get('sort_order', 0) }}"></label>
+    <label class="check"><input name="is_visible" type="checkbox"{% if form_values.get('is_visible', true) %} checked{% endif %}> Видима в каталозі</label>
+    <button class="button" type="submit">Створити категорію</button>
+  </form>
+</section>
+</div>
+{% endblock %}

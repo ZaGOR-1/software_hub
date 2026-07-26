@@ -1,0 +1,32 @@
+{% extends "public/base.html" %}
+{% block content %}
+<nav class="breadcrumbs" aria-label="Навігаційний шлях"><a href="/software/{{ software.slug }}">{{ software.name }}</a><span aria-hidden="true">→</span><span aria-current="page">Історія версій</span></nav>
+<section class="page-heading">
+  <p class="eyebrow">Релізи</p>
+  <h1>Історія версій {{ software.name }}</h1>
+  <p>Опубліковані та архівні релізи, changelog і доступні файли.</p>
+</section>
+
+{% if software.releases %}
+<div class="release-stack">
+  {% for release in software.releases %}
+  <article class="content-panel release-panel" aria-labelledby="release-{{ loop.index }}-title">
+    <div class="release-heading">
+      <div>
+        <h2 id="release-{{ loop.index }}-title">Версія {{ release.version }}</h2>
+        <p class="subtle">{{ release.channel_label }}{% if release.release_date_label %} · {{ release.release_date_label }}{% endif %}</p>
+      </div>
+      <div class="chip-row">
+        {% if release.is_current %}<span class="chip">Поточна</span>{% endif %}
+        {% if release.is_archived %}<span class="chip chip-muted">Архівна</span>{% endif %}
+      </div>
+    </div>
+    {% if release.changelog %}<div class="changelog preline">{{ release.changelog }}</div>{% endif %}
+    {% include "components/public_file_table.html" %}
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state"><h2>Опублікованих релізів ще немає</h2><p>Поверніться пізніше.</p></div>
+{% endif %}
+{% endblock %}

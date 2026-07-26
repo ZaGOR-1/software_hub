@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Вхід до адміністрування — Software Hub</title>
+  <link rel="icon" href="/static/icons/favicon.svg" type="image/svg+xml">
+  <script src="/static/js/theme-bootstrap.js"></script>
+  <link rel="stylesheet" href="/static/css/theme.css">
+  <link rel="stylesheet" href="/static/css/system.css">
+  <script src="/static/js/theme.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Перейти до форми входу</a>
+  <header class="system-header">
+    <a class="system-brand" href="/">{{ app_name }}</a>
+    <button class="theme-toggle" type="button" data-theme-toggle hidden>
+      <span class="theme-toggle-icon" data-theme-icon aria-hidden="true">◐</span>
+      <span class="theme-toggle-label" data-theme-label>Системна тема</span>
+    </button>
+  </header>
+  <main id="main-content" class="system-main" tabindex="-1">
+    <section class="system-card" aria-labelledby="login-title">
+      <p class="system-eyebrow">{{ app_name }}</p>
+      <h1 id="login-title">Вхід до адміністрування</h1>
+      <p class="system-muted">Використовуйте обліковий запис адміністратора, створений через CLI.</p>
+      {% if error %}<div id="login-error" class="system-alert" role="alert">{{ error }}</div>{% endif %}
+      <form class="system-form" method="post" action="/admin/login" autocomplete="on">
+        {% include "components/csrf.html" %}
+        <label class="system-field" for="username">
+          <span>Логін</span>
+          <input
+            id="username"
+            name="username"
+            type="text"
+            value="{{ username }}"
+            minlength="1"
+            maxlength="100"
+            autocomplete="username"
+            {% if error %}aria-invalid="true" aria-describedby="login-error"{% endif %}
+            required
+            autofocus
+          >
+        </label>
+        <label class="system-field" for="password">
+          <span>Пароль</span>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            minlength="1"
+            maxlength="4096"
+            autocomplete="current-password"
+            {% if error %}aria-invalid="true" aria-describedby="login-error"{% endif %}
+            required
+          >
+        </label>
+        <button class="system-button" type="submit">Увійти</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

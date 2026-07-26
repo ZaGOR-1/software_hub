@@ -1,0 +1,162 @@
+[project]
+name = "software-hub"
+version = "1.0.0-rc.1"
+description = "Personal software catalog with protected administration and direct file downloads."
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+license = { text = "Proprietary" }
+authors = [
+  { name = "Denis Zagorovskiy" },
+]
+dependencies = [
+  "alembic>=1.18,<2",
+  "argon2-cffi>=25.1,<26",
+  "fastapi>=0.140,<1",
+  "jinja2>=3.1,<4",
+  "pydantic>=2.13.4,<3",
+  "pydantic-settings>=2.14.2,<3",
+  "python-multipart>=0.0.32,<1",
+  "sqlalchemy>=2.0.50,<3",
+  "starlette>=1.3.1,<2",
+  "uvicorn>=0.34,<1",
+]
+
+[dependency-groups]
+dev = [
+  "httpx2>=2.7,<3",
+  "mypy>=1.15,<2",
+  "pre-commit>=4.2,<5",
+  "pytest>=8.3,<10",
+  "pytest-cov>=7,<8",
+  "ruff>=0.15.22,<0.16",
+  "types-PyYAML>=6.0.12,<7",
+]
+e2e = [
+  "playwright==1.61.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+src = ["app", "tests"]
+
+[tool.ruff.lint]
+select = [
+  "A",
+  "ANN",
+  "ARG",
+  "ASYNC",
+  "B",
+  "BLE",
+  "C4",
+  "DTZ",
+  "E",
+  "F",
+  "FAST",
+  "I",
+  "N",
+  "PERF",
+  "PIE",
+  "PL",
+  "PT",
+  "PTH",
+  "RUF",
+  "S",
+  "SIM",
+  "T20",
+  "TRY",
+  "UP",
+  "W",
+]
+ignore = [
+  "ANN401",
+  "PLR2004",
+  # Ukrainian UI copy and intentional Unicode-confusable security fixtures are not typos.
+  "RUF001",
+  # Domain errors intentionally carry their bounded public message at the raise site.
+  "TRY003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"alembic/versions/*.py" = ["PLR0915"]
+"app/core/exceptions.py" = ["N818"]
+"app/services/file_service.py" = ["TRY301"]
+"app/services/software_service.py" = ["TRY301"]
+"app/storage/move.py" = ["TRY301"]
+"app/storage/upload.py" = ["TRY301"]
+"tests/**/*.py" = [
+  "DTZ001",
+  "S101",
+  "S105",
+  "S106",
+  "S107",
+  "TRY301",
+]
+"tests/e2e/conftest.py" = ["S603", "S607"]
+"tests/e2e/test_full_flow.py" = ["PLR0915"]
+"tests/infrastructure/test_container_phase17.py" = ["PLC0415", "S603", "S607"]
+"tests/integration/admin/test_admin_crud.py" = ["PLR0915"]
+"tests/integration/files/test_file_lifecycle_phase11.py" = ["PLC0415"]
+"tests/integration/files/test_file_lifecycle_routes_phase11.py" = ["PLC0415"]
+"tests/security/test_auth_security.py" = ["PLC0415"]
+
+[tool.ruff.lint.pylint]
+max-args = 8
+max-branches = 14
+max-returns = 7
+max-statements = 60
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+warn_unreachable = true
+show_error_codes = true
+pretty = true
+plugins = ["pydantic.mypy"]
+files = ["app", "tests"]
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_decorators = false
+
+[tool.pytest.ini_options]
+addopts = [
+  "--strict-config",
+  "--strict-markers",
+  "--cov=app",
+  "--cov-report=term-missing:skip-covered",
+  "--cov-report=xml",
+  "--cov-fail-under=90",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+markers = [
+  "e2e: production-like Playwright tests requiring browser and Nginx services",
+]
+filterwarnings = ["error"]
+xfail_strict = true
+
+[tool.coverage.run]
+branch = true
+source = ["app"]
+omit = ["app/__init__.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "raise NotImplementedError",
+]
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+skips = []

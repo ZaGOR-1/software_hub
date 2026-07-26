@@ -1,0 +1,116 @@
+SOFTWARE HUB — PHASE 14 MANIFEST
+================================
+
+Phase: 14 — Theme, accessibility, SEO and responsive UI hardening
+Status: implemented
+Database schema change: none
+Alembic head: 0002_phase4_domain_schema
+Target runtime: Python 3.14
+Local validation runtime: Python 3.13.5
+
+PRIMARY IMPLEMENTATION
+----------------------
+app/core/seo.py
+app/schemas/public_catalog.py
+app/repositories/public_catalog_repository.py
+app/services/public_catalog_service.py
+app/routers/public/common.py
+app/routers/public/catalog.py
+app/templates/public/base.html
+app/templates/public/catalog.html
+app/templates/public/software_detail.html
+app/templates/public/releases.html
+app/templates/components/public_software_card.html
+app/templates/components/public_file_table.html
+app/templates/admin/base.html
+app/templates/auth/login.html
+app/templates/errors/base.html
+app/templates/components/admin_errors.html
+app/static/css/theme.css
+app/static/css/system.css
+app/static/css/public.css
+app/static/css/admin.css
+app/static/js/theme-bootstrap.js
+app/static/js/theme.js
+.github/workflows/ci.yml
+
+TESTS ADDED
+-----------
+tests/unit/core/test_seo_phase14.py
+tests/unit/test_theme_assets_phase14.py
+tests/integration/public/test_seo_accessibility_phase14.py
+tests/browser/theme_runtime_test.js
+
+DOCUMENTATION
+-------------
+docs/ui-accessibility-seo.md
+docs/phase-14-review.md
+docs/public-catalog.md
+docs/threat-model.md
+docs/release-checklist.md
+docs/README.md
+README.md
+
+FEATURES COMPLETED
+------------------
+[PASS] system/light/dark theme cycle
+[PASS] explicit theme persistence in localStorage
+[PASS] safe system/no-JavaScript fallback
+[PASS] cross-tab storage-event synchronization
+[PASS] no unsafe DOM HTML sinks
+[PASS] shared public/admin/login/error theme support
+[PASS] skip links and focusable main regions
+[PASS] current-page navigation and visible focus states
+[PASS] accessible form errors, live notices and table semantics
+[PASS] reduced-motion and forced-colors support
+[PASS] responsive public and administration refinements
+[PASS] trusted canonical URLs from PUBLIC_BASE_URL
+[PASS] Open Graph and Twitter metadata
+[PASS] explicit robots/noindex policy
+[PASS] bounded public-only XML sitemap
+[PASS] robots.txt sitemap advertisement
+[PASS] strict same-origin CSP compatibility without unsafe-inline
+
+AUTOMATED ACCEPTANCE
+--------------------
+[PASS] pytest: 446 passed
+[PASS] branch coverage: 94.47%
+[PASS] warnings: 0
+[PASS] Python compileall
+[PASS] JavaScript syntax checks
+[PASS] Node theme DOM-runtime checks
+[PASS] Jinja template compilation: 35 templates
+[PASS] Python source lines <= 100 characters
+[PASS] source trailing-whitespace check
+[PASS] TOML and GitHub Actions YAML parsing
+[PASS] Markdown internal links: 64
+[PASS] Alembic upgrade/current/check
+[PASS] Alembic downgrade/re-upgrade
+[PASS] Alembic schema drift: absent
+[PASS] uv export --frozen --no-dev
+[PASS] real Uvicorn HTTP/static/SEO smoke
+
+REAL HTTP SMOKE
+---------------
+[PASS] GET /health
+[PASS] GET /
+[PASS] GET /software
+[PASS] GET /admin/login
+[PASS] GET /sitemap.xml
+[PASS] GET /robots.txt
+[PASS] GET /static/js/theme.js
+[PASS] configured canonical origin in HTML
+[PASS] login noindex policy
+[PASS] sitemap and robots output
+[PASS] script-src 'self' and style-src 'self' CSP
+
+ENVIRONMENT LIMITATIONS
+-----------------------
+[NOT RUN] stable headless Chromium/Firefox/WebKit process in this sandbox
+[DEFERRED] automated axe browser audit to Phase 18 CI
+[NOT RUN LOCALLY] Python 3.14, Ruff, mypy, Bandit and pip-audit executables
+
+The browser limitation is documented and is not represented as a passed E2E
+check. Theme behavior is executed through the production JavaScript in a Node
+DOM/localStorage runtime harness, while page behavior is covered by FastAPI
+integration tests and a real Uvicorn smoke run.

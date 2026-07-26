@@ -1,0 +1,4 @@
+# Example WireGuard-only policy. Adjust the subnet to the actual tunnel network.
+allow 10.8.0.0/24;
+allow fd42:42:42::/64;
+deny all;

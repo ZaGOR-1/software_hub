@@ -1,0 +1,36 @@
+<article class="software-card" aria-labelledby="software-{{ card.slug }}-title">
+  <div class="software-card-heading">
+    <div class="software-icon" aria-hidden="true">{{ card.initials }}</div>
+    <div>
+      <h3 id="software-{{ card.slug }}-title">
+        <a href="/software/{{ card.slug }}">{{ card.name }}</a>
+      </h3>
+      <p class="software-version">
+        {% if card.current_version %}Версія {{ card.current_version }}{% else %}Версія не вказана{% endif %}
+      </p>
+    </div>
+  </div>
+  <p class="software-description">{{ card.short_description }}</p>
+  <div class="chip-row" aria-label="Категорія і теги програми {{ card.name }}">
+    {% if card.category %}
+    <a class="chip" href="/category/{{ card.category.slug }}">{{ card.category.name }}</a>
+    {% endif %}
+    {% for tag in card.tags[:3] %}
+    <a class="chip chip-muted" href="/software?tag={{ tag.slug }}">#{{ tag.name }}</a>
+    {% endfor %}
+  </div>
+  <dl class="card-stats">
+    <div><dt>Оновлено</dt><dd>{{ card.updated_at_label }}</dd></div>
+    <div><dt>Завантажень</dt><dd>{{ card.total_downloads }}</dd></div>
+  </dl>
+  <div class="card-actions">
+    <a class="button button-secondary" href="/software/{{ card.slug }}">Детальніше</a>
+    {% if card.recommended_file %}
+    <a
+      class="button"
+      href="{{ card.recommended_file.download_path }}"
+      aria-label="Завантажити {{ card.recommended_file.display_filename }}"
+    >Завантажити</a>
+    {% endif %}
+  </div>
+</article>

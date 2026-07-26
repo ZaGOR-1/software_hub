@@ -1,0 +1,104 @@
+{% extends "admin/base.html" %}
+{% block title %}Журнал аудиту{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">Безпека та операції</p>
+    <h1>Журнал аудиту</h1>
+    <p class="hint">Події зберігають лише allowlisted metadata без паролів, cookies і токенів.</p>
+  </div>
+</div>
+{% if errors %}
+<section class="error-summary" role="alert" aria-labelledby="audit-errors-title">
+  <h2 id="audit-errors-title">Перевірте фільтри</h2>
+  <ul>{% for error in errors %}<li>{{ error }}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+<section class="panel">
+  <form class="audit-filter" method="get" action="/admin/audit">
+    <label>Дія
+      <select name="action">
+        <option value="">Усі дії</option>
+        {% for action in snapshot.options.actions %}
+        <option value="{{ action }}"{% if filter_values.action == action %} selected{% endif %}>{{ action }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Результат
+      <select name="result">
+        <option value="">Усі результати</option>
+        {% for result in snapshot.options.results %}
+        <option value="{{ result }}"{% if filter_values.result == result %} selected{% endif %}>{{ result }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Адміністратор
+      <select name="user_id">
+        <option value="">Усі користувачі</option>
+        {% for user in snapshot.options.users %}
+        <option value="{{ user.id }}"{% if filter_values.user_id == user.id|string %} selected{% endif %}>{{ user.username }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Сутність
+      <select name="entity_type">
+        <option value="">Усі сутності</option>
+        {% for entity_type in snapshot.options.entity_types %}
+        <option value="{{ entity_type }}"{% if filter_values.entity_type == entity_type %} selected{% endif %}>{{ entity_type }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Від
+      <input type="date" name="date_from" value="{{ filter_values.date_from }}">
+    </label>
+    <label>До
+      <input type="date" name="date_to" value="{{ filter_values.date_to }}">
+    </label>
+    <div class="button-row audit-filter-actions">
+      <button class="button" type="submit">Фільтрувати</button>
+      <a class="button button-secondary" href="/admin/audit">Скинути</a>
+    </div>
+  </form>
+</section>
+<section class="panel">
+  <div class="panel-heading">
+    <h2>Події</h2>
+    <span class="hint">Знайдено: {{ snapshot.page.total }}</span>
+  </div>
+  {% if snapshot.page.items %}
+  <div class="table-wrap" tabindex="0" role="region" aria-label="Журнал адміністративних подій">
+    <table>
+      <thead><tr><th scope="col">UTC</th><th scope="col">Користувач</th><th scope="col">Дія</th><th scope="col">Сутність</th><th scope="col">Результат</th><th scope="col">Metadata</th><th scope="col">Request ID</th></tr></thead>
+      <tbody>
+      {% for event in snapshot.page.items %}
+        <tr>
+          <td><time datetime="{{ event.timestamp.isoformat() }}">{{ event.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</time></td>
+          <td>{{ event.user.username if event.user else 'system' }}</td>
+          <td><code>{{ event.action }}</code></td>
+          <td>{{ event.entity_type or '—' }}{% if event.entity_id %} #{{ event.entity_id }}{% endif %}</td>
+          <td><span class="status-pill status-{{ event.result }}">{{ event.result }}</span></td>
+          <td>
+            {% if event.safe_metadata %}
+            <dl class="audit-metadata">
+              {% for key, value in event.safe_metadata.items() %}<div><dt>{{ key }}</dt><dd>{{ value }}</dd></div>{% endfor %}
+            </dl>
+            {% else %}—{% endif %}
+          </td>
+          <td>{% if event.request_id %}<code>{{ event.request_id }}</code>{% else %}—{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <nav class="pagination" aria-label="Сторінки журналу аудиту">
+    <span>Сторінка {{ snapshot.page.page }}{% if snapshot.page.pages %} з {{ snapshot.page.pages }}{% endif %}</span>
+    <div class="button-row">
+      {% if previous_url %}<a class="button button-secondary" href="{{ previous_url }}">Назад</a>{% endif %}
+      {% if next_url %}<a class="button button-secondary" href="{{ next_url }}">Далі</a>{% endif %}
+    </div>
+  </nav>
+  {% else %}
+  <p class="empty-state">Подій за вибраними фільтрами немає.</p>
+  {% endif %}
+</section>
+{% endblock %}

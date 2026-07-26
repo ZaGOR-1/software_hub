@@ -1,0 +1,41 @@
+Software Hub — Phase 2 manifest
+Generated: 2026-07-23
+
+Scope completed:
+- typed fail-fast settings
+- production secret and HTTPS validation
+- trusted hosts and trusted proxy networks
+- request ID context and response propagation
+- structured JSON/plain logging
+- recursive sensitive-field redaction
+- bounded request logging
+- baseline security headers and CSP
+- typed application exceptions
+- centralized JSON/HTML error responses
+- production-safe unexpected error boundary
+- timezone-aware UTC helpers
+- Phase 2 tests and documentation
+
+Verification:
+- 62 pytest tests passed
+- 97.95% branch-aware coverage
+- compileall passed
+- production settings smoke passed
+- real Uvicorn /health smoke passed
+- TOML parsing passed
+- YAML parsing passed
+- Git whitespace check passed
+- Python line-length check passed
+
+Environment limitations:
+- target Python 3.14 is not installed in the sandbox
+- Ruff/mypy download was blocked by internal package registry HTTP 503
+- full CI remains configured as the Python 3.14 quality gate
+
+Intentionally not implemented:
+- SQLAlchemy and Alembic
+- authentication/session business logic
+- CSRF flow
+- admin/public UI
+- file storage/upload/download flows
+- Docker/Nginx runtime

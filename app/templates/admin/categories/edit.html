@@ -1,0 +1,26 @@
+{% extends "admin/base.html" %}
+{% block title %}Редагування категорії{% endblock %}
+{% block content %}
+<div class="page-heading"><div><a class="back-link" href="/admin/categories">← Категорії</a><h1>Редагування категорії</h1></div></div>
+<section class="panel form-panel narrow">
+  {% include "components/admin_errors.html" %}
+  <form method="post" action="/admin/categories/{{ category.id }}/edit">
+    {% include "components/csrf.html" %}
+    <label>Назва<input name="name" maxlength="120" required value="{{ form_values.get('name', category.name) if form_values else category.name }}"></label>
+    <label>Slug<input name="slug" maxlength="140" required value="{{ form_values.get('slug', category.slug) if form_values else category.slug }}"></label>
+    <label>Опис<textarea name="description" maxlength="2000" rows="5">{{ form_values.get('description', category.description or '') if form_values else category.description or '' }}</textarea></label>
+    <label>Порядок<input name="sort_order" type="number" min="0" max="1000000" value="{{ form_values.get('sort_order', category.sort_order) if form_values else category.sort_order }}"></label>
+    {% set visible = form_values.get('is_visible') if form_values else category.is_visible %}
+    <label class="check"><input name="is_visible" type="checkbox"{% if visible %} checked{% endif %}> Видима в каталозі</label>
+    <button class="button" type="submit">Зберегти</button>
+  </form>
+</section>
+<section class="danger-zone narrow">
+  <h2>Видалення категорії</h2><p>У програм, що використовують категорію, поле категорії стане порожнім.</p>
+  <form method="post" action="/admin/categories/{{ category.id }}/delete">
+    {% include "components/csrf.html" %}
+    <label class="check"><input name="confirm" type="checkbox" value="yes" required> Я підтверджую видалення metadata категорії</label>
+    <button class="button button-danger" type="submit">Видалити категорію</button>
+  </form>
+</section>
+{% endblock %}

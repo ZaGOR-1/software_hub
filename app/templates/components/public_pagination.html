@@ -1,0 +1,15 @@
+{% if view.page.pages > 1 %}
+<nav class="pagination" aria-label="Сторінки каталогу">
+  {% if view.page.has_previous %}
+  <a rel="prev" href="{{ request.url.include_query_params(page=view.page.page - 1) }}">← Попередня</a>
+  {% else %}
+  <span aria-disabled="true">← Попередня</span>
+  {% endif %}
+  <span>Сторінка {{ view.page.page }} з {{ view.page.pages }}</span>
+  {% if view.page.has_next %}
+  <a rel="next" href="{{ request.url.include_query_params(page=view.page.page + 1) }}">Наступна →</a>
+  {% else %}
+  <span aria-disabled="true">Наступна →</span>
+  {% endif %}
+</nav>
+{% endif %}

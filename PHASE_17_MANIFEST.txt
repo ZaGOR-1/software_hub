@@ -1,0 +1,70 @@
+Software Hub Phase 17 manifest
+==============================
+
+Scope
+-----
+Docker, Docker Compose, hardened Nginx, TLS/Certbot bootstrap, healthchecks,
+non-root execution, minimal mounts, deployment helpers and runbooks.
+
+Primary artifacts
+-----------------
+Dockerfile
+nginx/Dockerfile
+docker-compose.yml
+docker-compose.production.yml
+.env.production.example
+docker/app-entrypoint.sh
+docker/healthcheck.py
+docker/nginx-entrypoint.sh
+docker/nginx-healthcheck.sh
+nginx/nginx.conf
+nginx/templates/development.conf.template
+nginx/templates/production.conf.template
+nginx/snippets/proxy_headers.conf
+nginx/snippets/proxy_timeouts_default.conf
+nginx/snippets/security_headers.conf
+nginx/snippets/admin-access-open.conf
+nginx/snippets/admin-access-deny.conf
+nginx/snippets/admin-access-wireguard.conf.example
+nginx/snippets/admin-access-ip.conf.example
+scripts/prepare-host.sh
+scripts/prepare-local.sh
+scripts/deploy.sh
+scripts/rollback.sh
+scripts/certbot.sh
+DEPLOYMENT.md
+SECURITY.md
+docs/container-deployment.md
+docs/phase-17-review.md
+tests/infrastructure/test_container_phase17.py
+.github/workflows/container-build.yml
+
+Security properties
+-------------------
+- app, nginx and optional certbot use UID/GID 10001 by default
+- app/nginx read-only root filesystem
+- cap_drop ALL and no-new-privileges
+- no app host port, host network, privileged mode or Docker socket
+- fixed trusted proxy IP on internal backend network
+- Nginx permanent software and TLS mounts read-only
+- production admin policy defaults to deny all
+- Nginx owns TLS, security headers, static, limits and X-Accel delivery
+- application image receives no source-wide COPY or production secrets
+
+Local acceptance
+----------------
+- 491 pytest tests passed
+- branch-aware coverage 92.82% passed the configured threshold
+- both Nginx templates rendered and passed nginx -t
+- real Uvicorn to development Nginx smoke passed
+- real Uvicorn to TLS production Nginx smoke passed
+- HTTP 308, HSTS, CSP, request ID and fail-closed admin policy passed
+- shell scripts passed sh -n
+- Python modules compiled
+- Compose YAML and workflow YAML parsed
+- uv export --frozen --no-dev passed
+- Docker runtime build not available in the sandbox; CI workflow added
+
+Database
+--------
+No schema change. Alembic head remains 0002_phase4_domain_schema.

@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+{% block title %}Програми{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">Каталог</p><h1>Програми</h1></div><a class="button" href="/admin/software/new">Додати програму</a></div>
+<section class="panel">
+  <form class="filter-bar" method="get" action="/admin/software">
+    <label>Пошук<input name="q" value="{{ filters.q }}" minlength="2" maxlength="100" placeholder="Назва, розробник, категорія…"></label>
+    <label>Статус<select name="status"><option value="">Усі</option>{% for item in statuses %}<option value="{{ item.value }}"{% if filters.status == item.value %} selected{% endif %}>{{ item.value }}</option>{% endfor %}</select></label>
+    <label>Видимість<select name="visibility"><option value="">Усі</option>{% for item in visibilities %}<option value="{{ item.value }}"{% if filters.visibility == item.value %} selected{% endif %}>{{ item.value }}</option>{% endfor %}</select></label>
+    <label>Сортування<select name="sort">{% for item in sorts %}<option value="{{ item.value }}"{% if filters.sort == item.value %} selected{% endif %}>{{ item.value }}</option>{% endfor %}</select></label>
+    <button class="button button-secondary" type="submit">Застосувати</button>
+  </form>
+</section>
+<section class="panel">
+  <div class="panel-heading"><h2>Список програм</h2><span>{{ page.total }}</span></div>
+  {% if page.items %}
+  <div class="table-wrap" tabindex="0" role="region" aria-label="Список програм"><table><thead><tr><th scope="col">Назва</th><th scope="col">Статус</th><th scope="col">Видимість</th><th scope="col">Категорія</th><th scope="col">Релізи</th><th scope="col"></th></tr></thead><tbody>
+  {% for software in page.items %}
+  <tr><td><strong>{{ software.name }}</strong><br><code>{{ software.slug }}</code></td><td><span class="badge">{{ software.status.value }}</span></td><td>{{ software.visibility.value }}</td><td>{{ software.category.name if software.category else '—' }}</td><td>{{ software.releases|length }}</td><td class="actions"><a href="/admin/software/{{ software.id }}/preview">Перегляд</a><a href="/admin/software/{{ software.id }}/edit">Редагувати</a></td></tr>
+  {% endfor %}
+  </tbody></table></div>
+  {% else %}<p class="empty-state">Програм за заданими умовами не знайдено.</p>{% endif %}
+  {% include "components/admin_pagination.html" %}
+</section>
+{% endblock %}

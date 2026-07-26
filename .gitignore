@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Environments
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+
+# SQLite runtime files
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# Runtime data introduced in later phases
+backups/*
+!backups/.gitkeep
+logs/*
+!logs/.gitkeep
+storage/*
+!storage/.gitkeep
+
+# Local container runtime
+.runtime/
+
+# Browser and CI artifacts
+test-results/
+tests/artifacts/e2e/*
+!tests/artifacts/e2e/.gitkeep
+node_modules/

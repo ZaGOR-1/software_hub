@@ -1,0 +1,79 @@
+{% extends "public/base.html" %}
+{% block content %}
+{% if software.is_private %}<div class="status-banner status-private" role="status">Приватна сторінка, доступна лише адміністратору.</div>
+{% elif software.is_unlisted %}<div class="status-banner" role="status">Ця програма не показується в загальному каталозі.</div>
+{% elif software.is_archived %}<div class="status-banner" role="status">Програму архівовано. Нижче доступна історія релізів.</div>{% endif %}
+
+<section class="software-hero">
+  <div class="software-icon software-icon-large" aria-hidden="true">{{ software.initials }}</div>
+  <div class="software-hero-copy">
+    <div class="chip-row">
+      {% if software.category %}<a class="chip" href="/category/{{ software.category.slug }}">{{ software.category.name }}</a>{% endif %}
+      {% for tag in software.tags %}<a class="chip chip-muted" href="/software?tag={{ tag.slug }}">#{{ tag.name }}</a>{% endfor %}
+    </div>
+    <h1>{{ software.name }}</h1>
+    <p class="lead">{{ software.short_description }}</p>
+    <div class="software-meta-line">
+      {% if software.current_release %}<span>Поточна версія: <strong>{{ software.current_release.version }}</strong></span>{% endif %}
+      <span>Оновлено: {{ software.updated_at_label }}</span>
+      <span>Завантажень: {{ software.total_downloads }}</span>
+    </div>
+    <div class="hero-actions">
+      {% if software.recommended_file %}<a class="button" href="{{ software.recommended_file.download_path }}" aria-label="Завантажити {{ software.recommended_file.display_filename }}">Завантажити рекомендований файл</a>{% endif %}
+      <a class="button button-secondary" href="/software/{{ software.slug }}/releases">Усі версії</a>
+    </div>
+  </div>
+</section>
+
+<div class="detail-layout">
+  <article class="detail-content">
+    <section class="content-panel">
+      <h2>Про програму</h2>
+      <div class="preline">{{ software.full_description or software.short_description }}</div>
+    </section>
+
+    {% if software.current_release %}
+    <section class="content-panel" aria-labelledby="current-release-title">
+      <div class="release-heading">
+        <div><p class="eyebrow">Поточний реліз</p><h2 id="current-release-title">Версія {{ software.current_release.version }}</h2></div>
+        <span class="release-channel">{{ software.current_release.channel_label }}</span>
+      </div>
+      {% if software.current_release.release_date_label %}<p class="subtle">Дата релізу: {{ software.current_release.release_date_label }}</p>{% endif %}
+      {% if software.current_release.changelog %}<div class="changelog preline">{{ software.current_release.changelog }}</div>{% endif %}
+      {% set release = software.current_release %}
+      {% include "components/public_file_table.html" %}
+    </section>
+    {% endif %}
+
+    {% if software.releases|length > 1 %}
+    <section class="content-panel">
+      <div class="section-heading"><h2>Історія версій</h2><a href="/software/{{ software.slug }}/releases">Переглянути всі →</a></div>
+      <ul class="release-list compact-release-list">
+        {% for release in software.releases[:5] %}
+        <li><strong>{{ release.version }}</strong><span>{{ release.channel_label }}{% if release.release_date_label %} · {{ release.release_date_label }}{% endif %}</span></li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+  </article>
+
+  <aside class="software-sidebar">
+    <section class="content-panel">
+      <h2>Відомості</h2>
+      <dl class="metadata-list">
+        {% if software.developer_name %}<div><dt>Розробник</dt><dd>{{ software.developer_name }}</dd></div>{% endif %}
+        {% if software.license_name %}<div><dt>Ліцензія</dt><dd>{{ software.license_name }}</dd></div>{% endif %}
+        {% if software.published_at_label %}<div><dt>Додано</dt><dd>{{ software.published_at_label }}</dd></div>{% endif %}
+        {% if software.official_website_url %}<div><dt>Офіційний сайт</dt><dd><a href="{{ software.official_website_url }}" rel="noopener noreferrer">Відкрити ↗</a></dd></div>{% endif %}
+        {% if software.source_url %}<div><dt>Джерело</dt><dd><a href="{{ software.source_url }}" rel="noopener noreferrer">Відкрити ↗</a></dd></div>{% endif %}
+      </dl>
+    </section>
+    {% if software.supported_os %}<section class="content-panel"><h2>Підтримувані ОС</h2><div class="preline">{{ software.supported_os }}</div></section>{% endif %}
+    {% if software.system_requirements %}<section class="content-panel"><h2>Системні вимоги</h2><div class="preline">{{ software.system_requirements }}</div></section>{% endif %}
+    <section class="trust-warning">
+      <h2>Перед встановленням</h2>
+      <p>Перевірте контрольну суму SHA-256 та переконайтеся, що довіряєте джерелу файла.</p>
+    </section>
+  </aside>
+</div>
+{% endblock %}

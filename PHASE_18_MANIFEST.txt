@@ -1,0 +1,49 @@
+SOFTWARE HUB — PHASE 18 MANIFEST
+================================
+
+Scope:
+  Testing hardening, production-like Playwright E2E, accessibility matrix,
+  Python quality/security CI, Docker build verification and Trivy scanning.
+
+Primary additions:
+  .github/workflows/ci.yml
+  .github/workflows/e2e.yml
+  .github/workflows/container-build.yml
+  tests/e2e/
+  tests/infrastructure/test_quality_gates_phase18.py
+  docs/test-strategy.md
+  docs/phase-18-review.md
+
+Local results:
+  pytest: 496 passed, 10 skipped
+  branch-aware coverage: 92.82%
+  required coverage: 90%
+  warnings: 0
+  Python compileall: passed
+  Node theme runtime: passed
+  uv frozen runtime export: passed
+
+Blocking CI gates:
+  Ruff format
+  Ruff lint
+  strict mypy
+  pre-commit
+  pytest and coverage
+  Bandit
+  pip-audit
+  Playwright Chromium/Firefox/WebKit
+  deterministic accessibility audit
+  axe-core WCAG audit
+  Docker application/Nginx builds
+  Trivy repository and image scans
+  Compose runtime health/non-root smoke
+
+Honest local limitations:
+  The managed sandbox Chromium has URLBlocklist=["*"] and blocks loopback
+  navigation. No Docker daemon is available. Ruff, mypy, Bandit and pip-audit
+  are not installed locally. These are configured as mandatory CI gates and are
+  not represented as locally passed.
+
+Database:
+  no migration added
+  Alembic head: 0002_phase4_domain_schema

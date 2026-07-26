@@ -1,0 +1,81 @@
+Software Hub — Phase 3 manifest
+Generated: 2026-07-23
+
+Scope:
+- SQLAlchemy 2.x foundation
+- hardened SQLite connections
+- request-scoped sessions and explicit transactions
+- Alembic migration baseline
+- database-aware readiness health check
+- unit and integration tests
+
+Target runtime: Python >=3.14,<3.15
+Local validation runtime: Python 3.13.5
+
+Final verification results are appended during packaging.
+
+PHASE 3 FINAL VALIDATION
+Date: 2026-07-23
+Python: Python 3.13.5
+SQLAlchemy: 2.0.50
+Alembic: 1.18.4
+
+[1] compileall
+PASS
+
+[2] pytest
+........................................................................ [ 80%]
+..................                                                       [100%]
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.13.5-final-0 ________________
+
+Name                         Stmts   Miss Branch BrPart  Cover   Missing
+------------------------------------------------------------------------
+app/core/config.py             172      1     58      1    99%   72
+app/core/error_handlers.py      55      2      2      0    96%   70-71
+app/core/logging.py             51      2     22      3    93%   38, 63, 76->78
+app/core/middleware.py         129      1     32      3    98%   121->120, 124->126, 143
+app/database/session.py         57      1      6      1    97%   55
+------------------------------------------------------------------------
+TOTAL                          710      7    136      8    98%
+
+15 files skipped due to complete coverage.
+Coverage XML written to file coverage.xml
+Required test coverage of 90% reached. Total coverage: 98.23%
+90 passed in 1.03s
+
+[3] TOML/YAML/lock graph
+PASS: 45 locked packages; dependency closure complete
+
+[4] Python/config whitespace and Python line length
+PASS
+
+[5] Alembic CLI smoke
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001_phase3_baseline, Establish the Phase 3 migration baseline.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.schemas
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.tables
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.types
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.constraints
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.defaults
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.comments
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running downgrade 0001_phase3_baseline -> , Establish the Phase 3 migration baseline.
+PASS: upgrade/current/check/downgrade
+
+[6] Uvicorn readiness smoke
+PASS: {'status': 'ok', 'service': 'software-hub', 'version': '0.1.0', 'checks': {'database': 'ok'}}
+
+[7] scope guard
+PASS: no Phase 4 domain implementation
+
+Local-only limitations:
+- Python 3.14 is not installed in the sandbox.
+- Full uv sync --all-groups --locked requires network-enabled CI.
+- Ruff, mypy, Bandit and pip-audit remain CI quality gates.
