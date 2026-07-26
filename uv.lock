@@ -739,7 +739,7 @@ wheels = [
 
 [[package]]
 name = "software-hub"
-version = "1.0.0rc2"
+version = "1.0.0rc3"
 source = { virtual = "." }
 dependencies = [
     { name = "alembic" },

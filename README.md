@@ -16,7 +16,7 @@ deployment package with TLS-ready Nginx.
 
 ## Release candidate
 
-The repository version is **`1.0.0-rc.2`**. This candidate closes the blockers
+The repository version is **`1.0.0-rc.3`**. This candidate closes the blockers
 found by the full Linux and VPS audit and is the source revision intended for
 the `software.hotzagor.tech` Phase 20 deployment.
 
@@ -150,7 +150,7 @@ Healthy response:
 {
   "status": "ok",
   "service": "software-hub",
-  "version": "1.0.0-rc.2",
+  "version": "1.0.0-rc.3",
   "checks": {
     "application": "ok",
     "database": "ok",

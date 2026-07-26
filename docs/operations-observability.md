@@ -11,7 +11,7 @@ metrics stack or exposing infrastructure details publicly.
 {
   "status": "ok",
   "service": "software-hub",
-  "version": "1.0.0-rc.2",
+  "version": "1.0.0-rc.3",
   "checks": {
     "application": "ok",
     "database": "ok",

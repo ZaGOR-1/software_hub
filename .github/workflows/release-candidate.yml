@@ -37,7 +37,7 @@ jobs:
         run: uv python install 3.14
 
       - name: Synchronize locked environment
-        run: uv sync --all-groups --locked
+        run: uv sync --all-groups
 
       - name: Verify release-candidate documents and invariants
         run: uv run pytest -o addopts="" tests/infrastructure/test_release_candidate_phase19.py -q

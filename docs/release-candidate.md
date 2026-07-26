@@ -1,4 +1,4 @@
-# Software Hub `1.0.0-rc.2` release-candidate evidence
+# Software Hub `1.0.0-rc.3` release-candidate evidence
 
 **Prepared:** 2026-07-26
 **Scope:** code and documentation readiness after Phases 0–19
@@ -45,7 +45,7 @@ The temporary runtime and backup were removed after the test.
 
 ## Blocking tag workflows
 
-Tag `v1.0.0-rc.2` must pass all of the following:
+Tag `v1.0.0-rc.3` must pass all of the following:
 
 1. **CI** — lock check, frozen sync/export, pre-commit, Ruff, strict mypy,
    pytest/coverage, Bandit and pip-audit.
@@ -82,9 +82,9 @@ records, the evidence manifest and rehearsal result. Verify the downloaded
 evidence before promotion:
 
 ```bash
-sha256sum --check software-hub-1.0.0-rc.2.tar.gz.sha256
+sha256sum --check software-hub-1.0.0-rc.3.tar.gz.sha256
 sha256sum --check evidence-manifest.json.sha256
-gh attestation verify software-hub-1.0.0-rc.2.tar.gz \
+gh attestation verify software-hub-1.0.0-rc.3.tar.gz \
   --repo OWNER/software_hub
 ```
 

@@ -135,7 +135,7 @@ ${python_bin} - <<PY
 import json
 print(json.dumps({
     "status": "passed",
-    "version": "1.0.0-rc.2",
+    "version": "1.0.0-rc.3",
     "migration": "upgrade-downgrade-reupgrade",
     "administrator_bootstrap": "passed",
     "backup_id": "${backup_id}",
