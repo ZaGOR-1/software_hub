@@ -16,9 +16,9 @@ deployment package with TLS-ready Nginx.
 
 ## Release candidate
 
-The repository version is **`1.0.0-rc.1`**. Phase 19 prepares a documented and
-rehearsed release candidate; the real `software.hotzagor.tech` launch, DNS/TLS
-acceptance and production go-live remain Phase 20.
+The repository version is **`1.0.0-rc.2`**. This candidate closes the blockers
+found by the full Linux and VPS audit and is the source revision intended for
+the `software.hotzagor.tech` Phase 20 deployment.
 
 ## Current state
 
@@ -150,7 +150,7 @@ Healthy response:
 {
   "status": "ok",
   "service": "software-hub",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.2",
   "checks": {
     "application": "ok",
     "database": "ok",

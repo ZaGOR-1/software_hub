@@ -84,7 +84,7 @@ written, time-bounded exception.
 
 ## Release-candidate security acceptance
 
-Release `1.0.0-rc.1` is a code-level release candidate, not a claim that the real
+Release `1.0.0-rc.2` is a code-level release candidate, not a claim that the real
 production domain has passed acceptance. The candidate contains automated gates
 for authentication, CSRF, authorization, upload/download boundaries, backup
 integrity, container configuration, browser accessibility and dependency/image
